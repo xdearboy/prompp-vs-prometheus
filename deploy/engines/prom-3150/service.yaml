@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: prom-3150
+  namespace: prompp-bench
+  labels:
+    app.kubernetes.io/name: prompp-bench
+    app.kubernetes.io/instance: prom-3150
+    bench.prompp.io/engine: prometheus
+    bench.prompp.io/version: "3.15.0"
+spec:
+  clusterIP: None
+  selector:
+    app.kubernetes.io/instance: prom-3150
+  ports:
+    - name: web
+      port: 9090
+      targetPort: 9090

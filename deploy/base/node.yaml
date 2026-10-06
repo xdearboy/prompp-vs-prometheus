@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prompp-bench-node
+  namespace: prompp-bench
+data:
+  nodeName: bench-node-placeholder

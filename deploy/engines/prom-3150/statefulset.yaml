@@ -1,0 +1,111 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: prom-3150
+  namespace: prompp-bench
+  labels:
+    app.kubernetes.io/name: prompp-bench
+    app.kubernetes.io/instance: prom-3150
+    bench.prompp.io/engine: prometheus
+    bench.prompp.io/version: "3.15.0"
+spec:
+  serviceName: prom-3150
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: prom-3150
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: prompp-bench
+        app.kubernetes.io/instance: prom-3150
+    spec:
+      nodeName: bench-node-placeholder
+      terminationGracePeriodSeconds: 60
+      tolerations:
+        - key: node.kubernetes.io/unschedulable
+          operator: Exists
+          effect: NoSchedule
+      securityContext:
+        fsGroup: 65534
+      containers:
+        - name: engine
+          image: quay.io/prometheus/prometheus:v3.15.0
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/prometheus
+          args:
+            - --config.file=/etc/prometheus/prometheus.yml
+            - --storage.tsdb.path=/prometheus
+            - --web.enable-remote-write-receiver
+            - --web.enable-lifecycle
+          env:
+            - name: GOMEMLIMIT
+              value: 5529MiB
+            - name: GOMAXPROCS
+              value: "2"
+          ports:
+            - name: web
+              containerPort: 9090
+          resources:
+            requests:
+              cpu: 2000m
+              memory: 6Gi
+            limits:
+              cpu: 2000m
+              memory: 6Gi
+          readinessProbe:
+            httpGet:
+              path: /-/ready
+              port: 9090
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 90
+          livenessProbe:
+            httpGet:
+              path: /-/healthy
+              port: 9090
+            initialDelaySeconds: 45
+            periodSeconds: 20
+            failureThreshold: 6
+          securityContext:
+            runAsUser: 65534
+            runAsGroup: 65534
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
+          volumeMounts:
+            - name: config
+              mountPath: /etc/prometheus
+              readOnly: true
+            - name: data
+              mountPath: /prometheus
+        - name: diskprobe
+          image: quay.io/prometheus/prometheus:v3.15.0
+          command: ["sleep", "86400"]
+          resources:
+            requests:
+              cpu: 1m
+              memory: 8Mi
+            limits:
+              cpu: 50m
+              memory: 64Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: config
+          configMap:
+            name: prompp-bench-config
+        - name: data
+          emptyDir:
+            sizeLimit: 30Gi
+

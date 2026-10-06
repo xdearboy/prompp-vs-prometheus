@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: prompp-0815
+  namespace: prompp-bench
+  labels:
+    app.kubernetes.io/name: prompp-bench
+    app.kubernetes.io/instance: prompp-0815
+    bench.prompp.io/engine: prompp
+    bench.prompp.io/version: "0.8.15"
+spec:
+  clusterIP: None
+  selector:
+    app.kubernetes.io/instance: prompp-0815
+  ports:
+    - name: web
+      port: 9090
+      targetPort: 9090

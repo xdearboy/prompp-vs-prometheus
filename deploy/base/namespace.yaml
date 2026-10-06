@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: prompp-bench
+  labels:
+    app.kubernetes.io/name: prompp-bench
+    bench.prompp.io/purpose: benchmark

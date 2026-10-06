@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prompp-bench-config
+  namespace: prompp-bench
+data:
+  prometheus.yml: |-
+    global:
+      scrape_interval: 60s
+      evaluation_interval: 60s
+      external_labels:
+        bench: prompp-vs-prometheus
+    scrape_configs: []
