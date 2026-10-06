@@ -50,7 +50,7 @@ spec:
   containers:
     - name: harness
       image: ${IMAGE}
-      command: ["/bin/sleep", "86400"]
+      command: ["/bin/sleep", "259200"]
       securityContext:
         runAsUser: 0
       resources:
