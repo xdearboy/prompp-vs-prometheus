@@ -61,10 +61,11 @@ registry and a test keeps the manifests in sync with it.
 tools/          submodule, github.com/xdearboy/prom-loadgen: loadgen, querybench,
                 collector, series generator, remote write client, artifact schema
 cmd/meta        run metadata
-cmd/report      markdown and svg report
+cmd/report      markdown and svg report of one run
+cmd/aggregate   median and spread over many runs
 internal/engines, internal/report
 deploy          kustomize manifests for the three engines
-scripts         harness, run, teardown, preflight, node overlay
+scripts         harness, run, series, teardown, preflight, node overlay
 ```
 
 Clone with `git clone --recurse-submodules`, or run `git submodule update --init`.
@@ -95,6 +96,19 @@ scripts/teardown.sh --yes
 node name of a real cluster never lands in the repository. The committed manifests
 keep a `bench-node-placeholder` value and `scripts/preflight.sh` fails if a
 placeholder ever reaches a rendered manifest.
+
+### Repeated runs
+
+One run says little about variance. `scripts/series.sh` starts a run every
+`PERIOD_HOURS` (default 4) for `RUNS` times (default 12, two days) and writes the
+median, minimum and maximum over all finished runs to `results/AGGREGATE.md`:
+
+```sh
+export BENCH_NODE=<the node>
+nohup scripts/series.sh > series.log 2>&1 &
+```
+
+A run takes about 2.5 hours, so the period must stay above that.
 
 ### Knobs
 
