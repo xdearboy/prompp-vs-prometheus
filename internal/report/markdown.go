@@ -77,6 +77,7 @@ func (b *Bundle) writeIngest(sb *strings.Builder) {
 	}
 	engines := b.Engines()
 	sb.WriteString("## Ingest and head memory\n\n")
+	sb.WriteString("![compared with Prometheus 3.15.0](charts/summary.svg)\n\n")
 	sb.WriteString("![resident memory by series](charts/rss-by-series.svg)\n\n")
 	sb.WriteString("![cpu cores by series](charts/cpu-by-series.svg)\n\n")
 	sb.WriteString("![resident memory over time](charts/rss-timeline.svg)\n\n")
@@ -149,6 +150,7 @@ func (b *Bundle) writeQuery(sb *strings.Builder) {
 	sb.WriteString("Each query runs on its own: one unmeasured warmup request, then the given number of workers repeat it until the time budget is spent and a minimum number of requests finished. ")
 	sb.WriteString("`n` is the number of measured requests. With a small `n` the p99 is close to the maximum, so the median is the figure to compare. ")
 	sb.WriteString("The geometric mean weighs every query equally, so a few multi second range queries do not drown the rest.\n\n")
+	sb.WriteString("![latency under concurrency](charts/latency-scaling.svg)\n\n")
 	for _, concurrency := range b.concurrencyLevels() {
 		fmt.Fprintf(sb, "### Concurrency %d\n\n", concurrency)
 		fmt.Fprintf(sb, "![median query latency, concurrency %d](charts/%s)\n\n", concurrency, queryChart(concurrency))
