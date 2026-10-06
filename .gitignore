@@ -1,0 +1,10 @@
+/results/
+/charts/
+/REPORT.md
+.DS_Store
+*.local
+overlays/local/
+/bin/
+*.log
+/HANDOFF.md
+/HABR_ARTICLE.md
