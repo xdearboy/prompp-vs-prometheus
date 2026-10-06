@@ -1,0 +1,76 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          check-latest: true
+
+      - name: gofmt
+        run: |
+          unformatted="$(gofmt -l .)"
+          if [ -n "$unformatted" ]; then
+            echo "unformatted files:"
+            echo "$unformatted"
+            exit 1
+          fi
+
+      - name: vet
+        run: go vet ./...
+
+      - name: test
+        run: go test -race ./...
+
+      - name: build linux binaries
+        run: |
+          for cmd in meta report; do
+            CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -o "bin/$cmd" "./cmd/$cmd"
+          done
+          (cd tools && go vet ./... && go test -race ./...)
+
+  manifests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: render kustomize
+        run: |
+          set -euo pipefail
+          curl -sSLo kustomize.tar.gz "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv5.8.1/kustomize_v5.8.1_linux_amd64.tar.gz"
+          tar -xzf kustomize.tar.gz
+          ./kustomize build deploy > rendered.yaml
+          test -s rendered.yaml
+
+      - name: placeholder must not reach a rendered engine
+        run: |
+          set -euo pipefail
+          BENCH_NODE=ci-node ./scripts/node-overlay.sh
+          ./kustomize build overlays/local > rendered-local.yaml
+          if grep -q 'bench-node-placeholder' rendered-local.yaml; then
+            echo "placeholder survived substitution"
+            exit 1
+          fi
+          grep -q 'nodeName: ci-node' rendered-local.yaml
+
+      - name: internal identifiers must not be committed
+        run: |
+          set -euo pipefail
+          if git grep -nIE '[a-z0-9-]\.(internal|intranet|lan|local)\b' -- ':!go.sum'; then
+            echo "internal identifier committed"
+            exit 1
+          fi
