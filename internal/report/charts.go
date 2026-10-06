@@ -55,13 +55,14 @@ func (b *Bundle) chartEngines() []string {
 type bar struct {
 	engine string
 	value  float64
+	text   string
 }
 
 type chart struct {
 	title, subtitle, unit string
 	labels                []string
 	groups                [][]bar
-	rotate                bool
+	ref                   float64
 }
 
 func (b *Bundle) WriteCharts(dir string) error {
@@ -80,16 +81,31 @@ func (b *Bundle) WriteCharts(dir string) error {
 	for _, c := range b.concurrencyLevels() {
 		charts[queryChart(c)] = b.queryLatency(c)
 	}
+	horizontal := map[string]*chart{"summary.svg": b.summary()}
 	for name, c := range charts {
+		horizontal[name] = c
+	}
+	files := map[string]string{
+		"rss-timeline.svg":    b.rssTimeline(),
+		"latency-scaling.svg": b.latencyScaling(),
+	}
+	for name, c := range horizontal {
 		if c == nil {
 			continue
 		}
-		if err := os.WriteFile(filepath.Join(dir, name), []byte(c.svg()), 0o644); err != nil {
-			return err
+		if strings.HasPrefix(name, "query-") || name == "summary.svg" {
+			files[name] = c.hsvg()
+		} else {
+			files[name] = c.svg()
 		}
 	}
-	if len(b.Ingests) > 0 {
-		return os.WriteFile(filepath.Join(dir, "rss-timeline.svg"), []byte(b.rssTimeline()), 0o644)
+	for name, body := range files {
+		if body == "" {
+			continue
+		}
+		if err := os.WriteFile(filepath.Join(dir, name), []byte(body), 0o644); err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -100,7 +116,7 @@ func (b *Bundle) byLevel(title, subtitle, unit string, get func(*results.StepRes
 		var group []bar
 		for _, e := range b.chartEngines() {
 			if step := b.step(e, level); step != nil && step.Resources != nil {
-				group = append(group, bar{e, get(step.Resources)})
+				group = append(group, bar{engine: e, value: get(step.Resources)})
 			}
 		}
 		c.groups = append(c.groups, group)
@@ -121,13 +137,12 @@ func (b *Bundle) queryLatency(concurrency int) *chart {
 		title:    fmt.Sprintf("Median query latency, concurrency %d", concurrency),
 		subtitle: fmt.Sprintf("the %d slowest queries, lower is better", len(names)),
 		unit:     "ms",
-		rotate:   true,
 	}
 	for _, name := range names {
 		var group []bar
 		for _, e := range b.chartEngines() {
 			if m, ok := b.queryAt(e, name, concurrency); ok && m.Latency.Count > 0 {
-				group = append(group, bar{e, m.Latency.P50MS})
+				group = append(group, bar{engine: e, value: m.Latency.P50MS})
 			}
 		}
 		c.groups = append(c.groups, group)
@@ -167,7 +182,6 @@ func (b *Bundle) slowestQueries(limit int) []string {
 	if len(names) > limit {
 		names = names[:limit]
 	}
-	sort.Strings(names)
 	return names
 }
 
@@ -218,6 +232,8 @@ func fmtAxis(unit string, v float64) string {
 		return trim(v, " ms")
 	case "cores":
 		return trim(v, "")
+	case "pct":
+		return fmt.Sprintf("%.0f%%", v)
 	}
 	return fmt.Sprintf("%.0f", v)
 }
@@ -226,16 +242,18 @@ func fmtShort(unit string, v float64) string {
 	switch unit {
 	case "bytes":
 		if v >= 1<<30 {
-			return fmt.Sprintf("%.1fG", v/(1<<30))
+			return fmt.Sprintf("%.1f GiB", v/(1<<30))
 		}
-		return fmt.Sprintf("%.0fM", v/(1<<20))
+		return fmt.Sprintf("%.0f MiB", v/(1<<20))
 	case "ms":
 		if v >= 1000 {
-			return fmt.Sprintf("%.1fs", v/1000)
+			return fmt.Sprintf("%.1f s", v/1000)
 		}
-		return fmt.Sprintf("%.0fms", v)
+		return fmt.Sprintf("%.0f ms", v)
 	case "cores":
 		return fmt.Sprintf("%.2f", v)
+	case "pct":
+		return fmt.Sprintf("%.0f%%", v)
 	}
 	return fmt.Sprintf("%.0f", v)
 }
@@ -248,59 +266,60 @@ const (
 	svgBand  = "#f8fafc"
 )
 
-func (c *chart) svg() string {
-	const (
-		width, padL, padR, padT, plotH = 980.0, 78.0, 24.0, 84.0, 320.0
-	)
-	maxV := 0.0
-	engines := map[string]bool{}
-	maxBars, maxLabel := 0, 0
+func writeHeader(sb *strings.Builder, width, height float64, title, subtitle string, engines []string) {
+	fmt.Fprintf(sb, `<svg xmlns="http://www.w3.org/2000/svg" width="%.0f" height="%.0f" viewBox="0 0 %.0f %.0f" %s>`+"\n", width, height, width, height, svgFont)
+	sb.WriteString(`<rect width="100%" height="100%" fill="#ffffff" rx="10"/>` + "\n")
+	fmt.Fprintf(sb, `<text x="28" y="34" font-size="17" font-weight="700" fill="%s">%s</text>`+"\n", svgInk, escape(title))
+	fmt.Fprintf(sb, `<text x="28" y="54" font-size="12" fill="%s">%s</text>`+"\n", svgMuted, escape(subtitle))
+	lx := width - 24
+	for i := len(engines) - 1; i >= 0; i-- {
+		st := styleOf(engines[i])
+		lx -= float64(len(st.title))*6.6 + 26
+		fmt.Fprintf(sb, `<rect x="%.1f" y="24" width="11" height="11" rx="3" fill="%s"/><text x="%.1f" y="34" font-size="12" font-weight="600" fill="#334155">%s</text>`+"\n", lx, st.color, lx+16, escape(st.title))
+	}
+}
+
+func (c *chart) engines() []string {
+	have := map[string]bool{}
+	for _, g := range c.groups {
+		for _, br := range g {
+			have[br.engine] = true
+		}
+	}
+	var out []string
+	for _, e := range engineOrder {
+		if have[e] {
+			out = append(out, e)
+		}
+	}
+	return out
+}
+
+func (c *chart) extent() (maxV float64, maxBars, maxLabel int) {
 	for i, g := range c.groups {
 		maxBars = max(maxBars, len(g))
 		maxLabel = max(maxLabel, len(c.labels[i]))
 		for _, br := range g {
 			maxV = math.Max(maxV, br.value)
-			engines[br.engine] = true
 		}
 	}
+	return
+}
+
+func (c *chart) svg() string {
+	const width, padL, padR, padT, plotH, padB = 980.0, 78.0, 24.0, 84.0, 320.0, 44.0
+	maxV, maxBars, _ := c.extent()
 	if maxBars == 0 || maxV == 0 {
 		return ""
 	}
 	step, top := axis(c.unit, maxV)
-
-	padB := 44.0
-	if c.rotate {
-		padB = float64(maxLabel)*6.4*math.Sin(math.Pi/4) + 30
-	}
 	height := padT + plotH + padB
 	plotW := width - padL - padR
 	groupW := plotW / float64(len(c.groups))
 	barW := math.Min(46, (groupW*0.78)/float64(maxBars))
-	valueSize := 11.0
-	if barW < 30 {
-		valueSize = 9.5
-	}
 
 	var sb strings.Builder
-	fmt.Fprintf(&sb, `<svg xmlns="http://www.w3.org/2000/svg" width="%.0f" height="%.0f" viewBox="0 0 %.0f %.0f" %s>`+"\n", width, height, width, height, svgFont)
-	fmt.Fprintf(&sb, `<rect width="100%%" height="100%%" fill="#ffffff" rx="10"/>`+"\n")
-	fmt.Fprintf(&sb, `<text x="%.0f" y="34" font-size="17" font-weight="700" fill="%s">%s</text>`+"\n", padL-50, svgInk, escape(c.title))
-	fmt.Fprintf(&sb, `<text x="%.0f" y="54" font-size="12" fill="%s">%s</text>`+"\n", padL-50, svgMuted, escape(c.subtitle))
-
-	lx := width - padR
-	order := []string{}
-	for _, e := range engineOrder {
-		if engines[e] {
-			order = append(order, e)
-		}
-	}
-	for i := len(order) - 1; i >= 0; i-- {
-		st := styleOf(order[i])
-		w := float64(len(st.title))*6.6 + 26
-		lx -= w
-		fmt.Fprintf(&sb, `<rect x="%.1f" y="24" width="11" height="11" rx="3" fill="%s"/><text x="%.1f" y="34" font-size="12" font-weight="600" fill="#334155">%s</text>`+"\n", lx, st.color, lx+16, escape(st.title))
-	}
-
+	writeHeader(&sb, width, height, c.title, c.subtitle, c.engines())
 	for gi := range c.groups {
 		if gi%2 == 1 {
 			fmt.Fprintf(&sb, `<rect x="%.1f" y="%.0f" width="%.1f" height="%.0f" fill="%s"/>`+"\n", padL+float64(gi)*groupW, padT, groupW, plotH, svgBand)
@@ -311,7 +330,6 @@ func (c *chart) svg() string {
 		fmt.Fprintf(&sb, `<line x1="%.0f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="%s"/>`+"\n", padL, y, padL+plotW, y, svgGrid)
 		fmt.Fprintf(&sb, `<text x="%.0f" y="%.1f" font-size="11" fill="%s" text-anchor="end">%s</text>`+"\n", padL-10, y+4, svgMuted, fmtAxis(c.unit, v))
 	}
-
 	for gi, g := range c.groups {
 		cx := padL + (float64(gi)+0.5)*groupW
 		x0 := cx - barW*float64(len(g))/2
@@ -319,13 +337,54 @@ func (c *chart) svg() string {
 			h := plotH * br.value / top
 			x := x0 + float64(bi)*barW
 			fmt.Fprintf(&sb, `<rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" rx="3" fill="%s"/>`+"\n", x+1.5, padT+plotH-h, barW-3, h, styleOf(br.engine).color)
-			fmt.Fprintf(&sb, `<text x="%.1f" y="%.1f" font-size="%.0f" font-weight="600" fill="#334155" text-anchor="middle">%s</text>`+"\n", x+barW/2, padT+plotH-h-5, valueSize, fmtShort(c.unit, br.value))
+			fmt.Fprintf(&sb, `<text x="%.1f" y="%.1f" font-size="10" font-weight="600" fill="#334155" text-anchor="middle">%s</text>`+"\n", x+barW/2, padT+plotH-h-5, fmtShort(c.unit, br.value))
 		}
-		if c.rotate {
-			fmt.Fprintf(&sb, `<text x="%.1f" y="%.1f" font-size="11" font-weight="600" fill="#1e293b" text-anchor="end" transform="rotate(-45 %.1f %.1f)">%s</text>`+"\n", cx+6, padT+plotH+18, cx+6, padT+plotH+18, escape(c.labels[gi]))
-		} else {
-			fmt.Fprintf(&sb, `<text x="%.1f" y="%.1f" font-size="13" font-weight="600" fill="#1e293b" text-anchor="middle">%s</text>`+"\n", cx, padT+plotH+26, escape(c.labels[gi]))
+		fmt.Fprintf(&sb, `<text x="%.1f" y="%.1f" font-size="13" font-weight="600" fill="#1e293b" text-anchor="middle">%s</text>`+"\n", cx, padT+plotH+26, escape(c.labels[gi]))
+	}
+	sb.WriteString("</svg>\n")
+	return sb.String()
+}
+
+func (c *chart) hsvg() string {
+	const width, padT, padR, padB, barH, gap = 980.0, 84.0, 150.0, 40.0, 14.0, 18.0
+	maxV, maxBars, maxLabel := c.extent()
+	if maxBars == 0 || maxV == 0 {
+		return ""
+	}
+	step, top := axis(c.unit, maxV)
+	padL := math.Max(130, float64(maxLabel)*7+28)
+	plotW := width - padL - padR
+	rowH := float64(maxBars)*(barH+3) + gap
+	plotH := rowH * float64(len(c.groups))
+	height := padT + plotH + padB
+	xOf := func(v float64) float64 { return padL + plotW*v/top }
+
+	var sb strings.Builder
+	writeHeader(&sb, width, height, c.title, c.subtitle, c.engines())
+	for gi := range c.groups {
+		if gi%2 == 0 {
+			fmt.Fprintf(&sb, `<rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" fill="%s"/>`+"\n", padL, padT+float64(gi)*rowH, plotW, rowH, svgBand)
 		}
+	}
+	for v := 0.0; v <= top+step/2; v += step {
+		fmt.Fprintf(&sb, `<line x1="%.1f" y1="%.0f" x2="%.1f" y2="%.1f" stroke="%s"/><text x="%.1f" y="%.1f" font-size="11" fill="%s" text-anchor="middle">%s</text>`+"\n", xOf(v), padT, xOf(v), padT+plotH, svgGrid, xOf(v), padT+plotH+20, svgMuted, fmtAxis(c.unit, v))
+	}
+	for gi, g := range c.groups {
+		y0 := padT + float64(gi)*rowH + gap/2
+		fmt.Fprintf(&sb, `<text x="%.1f" y="%.1f" font-size="12.5" font-weight="600" fill="#1e293b" text-anchor="end">%s</text>`+"\n", padL-12, padT+float64(gi)*rowH+rowH/2+4, escape(c.labels[gi]))
+		for bi, br := range g {
+			y := y0 + float64(bi)*(barH+3)
+			w := plotW * br.value / top
+			fmt.Fprintf(&sb, `<rect x="%.1f" y="%.1f" width="%.1f" height="%.0f" rx="3" fill="%s"/>`+"\n", padL, y, math.Max(w, 1), barH, styleOf(br.engine).color)
+			text := br.text
+			if text == "" {
+				text = fmtShort(c.unit, br.value)
+			}
+			fmt.Fprintf(&sb, `<text x="%.1f" y="%.1f" font-size="11" font-weight="600" fill="#334155" stroke="#ffffff" stroke-width="3" paint-order="stroke">%s</text>`+"\n", padL+w+6, y+barH-3, escape(text))
+		}
+	}
+	if c.ref > 0 {
+		fmt.Fprintf(&sb, `<line x1="%.1f" y1="%.0f" x2="%.1f" y2="%.1f" stroke="#475569" stroke-width="1.4" stroke-dasharray="5 4"/>`+"\n", xOf(c.ref), padT, xOf(c.ref), padT+plotH)
 	}
 	sb.WriteString("</svg>\n")
 	return sb.String()
@@ -333,7 +392,7 @@ func (c *chart) svg() string {
 
 func (b *Bundle) rssTimeline() string {
 	const (
-		width, height, padL, padR, padT, padB = 980.0, 440.0, 78.0, 24.0, 84.0, 52.0
+		width, height, padL, padR, padT, padB = 980.0, 440.0, 78.0, 96.0, 84.0, 52.0
 	)
 	type line struct {
 		engine string
@@ -372,16 +431,11 @@ func (b *Bundle) rssTimeline() string {
 	yOf := func(v float64) float64 { return padT + plotH - plotH*v/top }
 
 	var sb strings.Builder
-	fmt.Fprintf(&sb, `<svg xmlns="http://www.w3.org/2000/svg" width="%.0f" height="%.0f" viewBox="0 0 %.0f %.0f" %s>`+"\n", width, height, width, height, svgFont)
-	sb.WriteString(`<rect width="100%" height="100%" fill="#ffffff" rx="10"/>` + "\n")
-	fmt.Fprintf(&sb, `<text x="28" y="34" font-size="17" font-weight="700" fill="%s">Resident memory during ingest</text>`+"\n", svgInk)
-	fmt.Fprintf(&sb, `<text x="28" y="54" font-size="12" fill="%s">every engine on the same clock, minutes since its ingest started, lower is better</text>`+"\n", svgMuted)
-	lx := width - padR
-	for i := len(lines) - 1; i >= 0; i-- {
-		st := styleOf(lines[i].engine)
-		lx -= float64(len(st.title))*6.6 + 26
-		fmt.Fprintf(&sb, `<rect x="%.1f" y="24" width="11" height="11" rx="3" fill="%s"/><text x="%.1f" y="34" font-size="12" font-weight="600" fill="#334155">%s</text>`+"\n", lx, st.color, lx+16, escape(st.title))
+	names := make([]string, len(lines))
+	for i, l := range lines {
+		names[i] = l.engine
 	}
+	writeHeader(&sb, width, height, "Resident memory during ingest", "every engine on the same clock, minutes since its ingest started, lower is better", names)
 	for v := 0.0; v <= top+step/2; v += step {
 		fmt.Fprintf(&sb, `<line x1="%.0f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="%s"/><text x="%.0f" y="%.1f" font-size="11" fill="%s" text-anchor="end">%s</text>`+"\n", padL, yOf(v), padL+plotW, yOf(v), svgGrid, padL-10, yOf(v)+4, svgMuted, fmtAxis("bytes", v))
 	}
@@ -401,6 +455,8 @@ func (b *Bundle) rssTimeline() string {
 			pts = append(pts, fmt.Sprintf("%.1f,%.1f", xOf(l.min[i]), yOf(l.val[i])))
 		}
 		fmt.Fprintf(&sb, `<polyline fill="none" stroke="%s" stroke-width="2.2" stroke-linejoin="round" points="%s"/>`+"\n", styleOf(l.engine).color, strings.Join(pts, " "))
+		last := len(l.val) - 1
+		fmt.Fprintf(&sb, `<circle cx="%.1f" cy="%.1f" r="3.5" fill="%s"/><text x="%.1f" y="%.1f" font-size="11" font-weight="600" fill="%s">%s</text>`+"\n", xOf(l.min[last]), yOf(l.val[last]), styleOf(l.engine).color, xOf(l.min[last])+8, yOf(l.val[last])+4, styleOf(l.engine).color, fmtShort("bytes", l.val[last]))
 	}
 	sb.WriteString("</svg>\n")
 	return sb.String()

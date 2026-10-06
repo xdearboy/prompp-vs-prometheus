@@ -11,6 +11,8 @@ limits (2 cpu, 6 GiB), the same Go runtime settings and the same synthetic data.
 500 000 active series, 27.4 million samples per engine, 38 PromQL queries.
 Full report with every table: [runs/20261006T151708Z/REPORT.md](runs/20261006T151708Z/REPORT.md).
 
+![compared with Prometheus 3.15.0](runs/20261006T151708Z/charts/summary.svg)
+
 | at 500k series | Prom++ 0.8.15 | Prometheus 3.15.0 | Prometheus 2.55.1 |
 |---|---|---|---|
 | resident memory | **248 MiB** | 1.1 GiB | 1.1 GiB |
@@ -28,8 +30,12 @@ Query latency, geometric mean of the median over all queries:
 | 16 | **2.55 s** | 3.31 s | 3.41 s |
 
 Memory is where the engines differ, queries are 15 to 25 percent faster and disk is
-a wash. 33 of 38 queries return byte identical results on all three engines, the five
-range queries that differ are listed in the report.
+a wash. 33 of 38 queries return byte identical results on all three engines. The five
+that differ are rate and `_over_time` range queries: Prom++ 0.8.15 evaluates range
+selectors left-open like Prometheus 3.x, 2.55.1 includes the sample on the window
+start.
+
+![latency under concurrency](runs/20261006T151708Z/charts/latency-scaling.svg)
 
 ![resident memory](runs/20261006T151708Z/charts/rss-by-series.svg)
 
