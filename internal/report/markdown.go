@@ -230,7 +230,7 @@ func (b *Bundle) writeCorrectness(sb *strings.Builder) {
 	sort.Strings(sorted)
 
 	sb.WriteString("Every engine received the same samples and every query is evaluated at the same pinned timestamp, so a result that differs points at a semantic difference between engines or at lost data. Each cell is the sha256 of the canonicalised result.\n\n")
-	sb.WriteString("A differing row means the engines disagree on the same data at the same timestamp. The cause is not investigated here, range selectors became left-open in Prometheus 3.0 and the differences are all range or subquery shapes, which is where that change would show.\n\n")
+	sb.WriteString("A differing row means the engines disagree on the same data at the same timestamp. All of them are rate or `_over_time` range queries. Prometheus 3.0 made range selectors left-open, a sample exactly on the window start is no longer included, and the Prom++ 0.8.15 PromQL engine already drops it (`promql/engine.go`, `floats[drop].T <= mint`), unlike 2.55.1 (`< mint`). The synthetic samples sit on the window edge, so 2.55.1 sees one extra sample.\n\n")
 	sb.WriteString("| query |")
 	for _, e := range engines {
 		sb.WriteString(" `" + e + "` |")

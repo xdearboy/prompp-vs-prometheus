@@ -55,7 +55,7 @@ var Prometheus255 = Engine{
 	FSGroup:    65534,
 	Args:       commonArgs("/etc/prometheus/prometheus.yml", "/prometheus"),
 	Env:        RuntimeEnv,
-	Notes:      "upstream base of prompp 0.8.x",
+	Notes:      "closed range selectors, the semantics before 3.0",
 }
 
 var Prompp0815 = Engine{

@@ -4,7 +4,7 @@
 
 Three TSDB engines, one at a time, on one node:
 
-- Deckhouse Prom++ 0.8.15, a fork of Prometheus 2.55.1 with a C++ head and WAL
+- Deckhouse Prom++ 0.8.15, a Prometheus fork with a C++ head and WAL and a PromQL engine with 3.x range selector semantics
 - upstream Prometheus 3.15.0
 - upstream Prometheus 2.55.1
 
@@ -87,9 +87,10 @@ that step, which is the number that scales when a fleet grows.
 - **Small samples for slow queries.** Range queries that take seconds get only the
   minimum number of measured requests. Their p99 is close to the maximum, compare
   the median.
-- **Range selector semantics.** Prometheus 3.0 made range selectors left-open. Some
-  subquery results legitimately differ between 2.x based engines and 3.x, and the
-  report says so next to the equality table.
+- **Range selector semantics.** Prometheus 3.0 made range selectors left-open. Prom++
+  0.8.15 and Prometheus 3.15.0 agree with each other and differ from 2.55.1 on
+  five rate and `_over_time` queries, because a sample on the window start is
+  counted by 2.55.1 only. The report says so next to the equality table.
 - **Synthetic data.** The generator produces realistic label cardinality and a
   gauge/counter mix, but it is not a production scrape. Query plans behave
   differently against real label sets.
