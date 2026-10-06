@@ -148,7 +148,7 @@ run_engine() {
   reset_engine "${engine}"
 
   step "${engine}: apply"
-  kubectl apply -k "overlays/local/engines/${engine}"
+  kubectl apply -k "overlays/local/engines/${engine}" -l "app.kubernetes.io/instance=${engine}"
 
   step "${engine}: wait ready"
   kubectl -n "${NAMESPACE}" wait --for=create "pod/${engine}-0" --timeout="${READY_TIMEOUT}"
@@ -250,7 +250,7 @@ grep -rlF -- "${BENCH_NODE}" "${RESULTS_DIR}" | while read -r file; do
 done || true
 
 step "report"
-go run ./cmd/report -root results -run "${RUN_ID}" -quiet
+${REPORT_CMD:-go run ./cmd/report} -root results -run "${RUN_ID}" -quiet
 
 step "done"
 printf 'run %s artifacts in %s\n' "${RUN_ID}" "${RESULTS_DIR}"

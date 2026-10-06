@@ -24,4 +24,4 @@ for i in $(seq "${RUNS}"); do
   scripts/run.sh > "bench-${RUN_ID}.log" 2>&1 || printf 'run %s failed, see bench-%s.log\n' "${RUN_ID}" "${RUN_ID}"
 done
 
-go run ./cmd/aggregate -root results
+${AGGREGATE_CMD:-go run ./cmd/aggregate} -root results
