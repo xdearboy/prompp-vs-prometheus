@@ -1,22 +1,21 @@
-# Prom++ versus Prometheus
+**English** · [Русский](README.ru.md)
+
+# Prom++ vs Prometheus
 
 [![ci](https://github.com/xdearboy/prompp-vs-prometheus/actions/workflows/ci.yml/badge.svg)](https://github.com/xdearboy/prompp-vs-prometheus/actions/workflows/ci.yml)
 
-A reproducible benchmark of Deckhouse Prom++ 0.8.15 against Prometheus 3.15.0 and
-2.55.1. One engine at a time, single replica, pinned to one node with the same
-limits (2 cpu, 6 GiB), the same Go runtime settings and the same synthetic data.
+A benchmark of Deckhouse Prom++ 0.8.15 against Prometheus 3.15.0 and 2.55.1. The
+engines run one at a time, single replica, on the same node with the same limits
+(2 cpu, 6 GiB), the same Go runtime settings and the same synthetic data.
 
-## Result
+## Results
 
-500 000 active series, 27.4 million samples per engine, 38 PromQL queries.
-Full report with every table: [runs/series-20261006/20261006T210616Z/REPORT.md](runs/series-20261006/20261006T210616Z/REPORT.md).
+500 000 active series, 27.4 million samples per engine, 38 PromQL queries. The
+numbers are the median of 12 full runs, one every four hours for two days. Between
+the fastest and the slowest run the spread stays under 8 percent, except for the
+working set of Prom++ (12 percent). Details: [AGGREGATE.md](runs/series-20261006/AGGREGATE.md).
 
 ![compared with Prometheus 3.15.0](runs/series-20261006/20261006T210616Z/charts/summary.svg)
-
-Median of 12 full runs, one every four hours for two days, 500k series at the end of
-the ramp. The spread between the fastest and the slowest run stays under 8 percent
-for everything except the working set of Prom++ (12 percent), see
-[runs/series-20261006/AGGREGATE.md](runs/series-20261006/AGGREGATE.md).
 
 | at 500k series | Prom++ 0.8.15 | Prometheus 3.15.0 | Prometheus 2.55.1 |
 |---|---|---|---|
@@ -33,66 +32,64 @@ Query latency, geometric mean of the median over all queries:
 | 4 | **682 ms** | 828 ms | 839 ms |
 | 16 | **2.53 s** | 3.35 s | 3.46 s |
 
-Memory is where the engines differ, queries are 15 to 25 percent faster and disk is
-a wash. 33 of 38 queries return byte identical results on all three engines. The five
-that differ are rate and `_over_time` range queries: Prom++ 0.8.15 evaluates range
-selectors left-open like Prometheus 3.x, 2.55.1 includes the sample on the window
-start. The charts are from the first run of the series, every run is in
-[runs/series-20261006](runs/series-20261006).
+Memory is the big difference. Queries are 15 to 25 percent faster, disk is about
+the same. 33 of 38 queries return byte identical results on all three engines. The
+other five are `rate` and `_over_time` range queries: Prom++ 0.8.15 treats range
+selectors as left-open like Prometheus 3.x, while 2.55.1 counts the sample that sits
+exactly on the window start.
 
 ![latency under concurrency](runs/series-20261006/20261006T210616Z/charts/latency-scaling.svg)
 
-![resident memory](runs/series-20261006/20261006T210616Z/charts/rss-by-series.svg)
-
 ![resident memory during ingest](runs/series-20261006/20261006T210616Z/charts/rss-timeline.svg)
 
-Read [METHODOLOGY.md](METHODOLOGY.md) before quoting these numbers: one node, short
-runs and synthetic data are real limits.
+The charts come from the first run of the series, the full report of that run is
+[REPORT.md](runs/series-20261006/20261006T210616Z/REPORT.md). Read
+[METHODOLOGY.md](METHODOLOGY.md) before quoting the numbers: one node, short runs
+and synthetic data are real limits.
 
 ## Engines
 
-| name | image | upstream base | notes |
-|---|---|---|---|
-| `prompp-0815` | `mirror.gcr.io/prompp/prompp:0.8.15` | Prometheus 2.55.1 | C++ head and WAL |
-| `prom-3150` | `quay.io/prometheus/prometheus:v3.15.0` | current upstream | |
-| `prom-2551` | `quay.io/prometheus/prometheus:v2.55.1` | base of Prom++ 0.8.x | |
+| name | image | notes |
+|---|---|---|
+| `prompp-0815` | `mirror.gcr.io/prompp/prompp:0.8.15` | C++ head and WAL, range selectors like 3.x |
+| `prom-3150` | `quay.io/prometheus/prometheus:v3.15.0` | current upstream |
+| `prom-2551` | `quay.io/prometheus/prometheus:v2.55.1` | closed range selectors |
 
-All three get the same four flags and the same Go runtime pinning through the
-environment: `GOMEMLIMIT=5529MiB` (90% of the 6Gi limit) and `GOMAXPROCS=2`
-(the cpu limit). Left to their defaults the engines would not be comparable:
-Prom++ 0.8.15 and Prometheus 2.55.1 ship `auto-gomemlimit` and `auto-gomaxprocs`
-as opt-in feature flags, while Prometheus 3.x enables both. The report shows the
-values each engine actually reported through `/api/v1/status/runtimeinfo`, so
-the pinning is verified rather than assumed. `internal/engines` holds the
-registry and a test keeps the manifests in sync with it.
+All three get the same flags and the same runtime settings through the environment:
+`GOMEMLIMIT=5529MiB` (90% of the 6 GiB limit) and `GOMAXPROCS=2`. Without them the
+engines would not be comparable: Prom++ 0.8.15 and Prometheus 2.55.1 keep
+`auto-gomemlimit` and `auto-gomaxprocs` behind opt-in feature flags, Prometheus 3.x
+turns both on. The report shows the values each engine reports through
+`/api/v1/status/runtimeinfo`, so the pinning is checked, not assumed. The engine list
+lives in `internal/engines`, a test keeps the manifests in sync with it.
 
 ## Layout
 
-```
-tools/          submodule, github.com/xdearboy/prom-loadgen: loadgen, querybench,
-                collector, series generator, remote write client, artifact schema
+```text
+tools/          submodule github.com/xdearboy/prom-loadgen: loadgen, querybench,
+                collector, series generator, remote write client, result schema
 cmd/meta        run metadata
 cmd/report      markdown and svg report of one run
 cmd/aggregate   median and spread over many runs
 internal/       engine registry, report and chart generator
-deploy/         kustomize manifests for the three engines, runner.yaml for the in-cluster runner
+deploy/         kustomize manifests, runner.yaml for the in-cluster runner
 scripts/        harness, run, series, runner, teardown, preflight, node overlay
 runs/           published results
-  series-20261006/    twelve repeated runs and their aggregate, the first run (20261006T210616Z)
-                      keeps the raw resource samples, the others only the summaries
+  series-20261006/   twelve runs and their aggregate; the first run keeps the raw
+                     resource samples, the others only the summaries
 ```
 
-Clone with `git clone --recurse-submodules`, or run `git submodule update --init`.
+Clone with `git clone --recurse-submodules` or run `git submodule update --init`.
 
 ## Requirements
 
 - `kubectl` with kustomize v5 and a cluster context you can write to
 - Go 1.24 or newer
-- a node you are willing to pin the benchmark to
-- enough free node disk for a `30Gi` emptyDir data volume
+- a node you can pin the benchmark to
+- free disk on that node for a 30 GiB emptyDir
 
-No container build tooling is needed. The tools are cross compiled to
-`linux/amd64` and copied into a harness pod with `kubectl cp`.
+No image build is needed: the tools are cross compiled for linux/amd64 and copied
+into a harness pod with `kubectl cp`.
 
 ## Running
 
@@ -105,76 +102,72 @@ RUN_ID="$RUN_ID" scripts/run.sh
 scripts/teardown.sh --yes
 ```
 
-`node-overlay.sh` renders the kustomize overlay that pins every engine to
-`$BENCH_NODE`. The overlay lives in `overlays/local/`, which is gitignored, so the
-node name of a real cluster never lands in the repository. The committed manifests
-keep a `bench-node-placeholder` value and `scripts/preflight.sh` fails if a
-placeholder ever reaches a rendered manifest.
+`node-overlay.sh` renders an overlay that pins every engine to `$BENCH_NODE`. It lives
+in `overlays/local/`, which is gitignored, so the name of a real node never reaches
+the repository. The committed manifests keep a `bench-node-placeholder`, and
+`scripts/preflight.sh` fails if it survives into a rendered manifest.
 
 ### Repeated runs
 
-One run says little about variance. `scripts/series.sh` starts a run every
-`PERIOD_HOURS` (default 4) for `RUNS` times (default 12, two days) and writes the
-median, minimum and maximum over all finished runs to `results/AGGREGATE.md`.
-A run takes about 2.5 hours, so the period must stay above that.
+One run says nothing about variance. `scripts/series.sh` starts a run every
+`PERIOD_HOURS` (4 by default) `RUNS` times (12 by default) and writes the median,
+minimum and maximum of all finished runs to `results/AGGREGATE.md`. A run takes about
+2.5 hours, so keep the period above that.
 
-`scripts/runner.sh` starts the whole series inside the cluster, in a small pod that
-holds the scripts and talks to the API server through its own service account, so
-the machine that launched it can be switched off:
+`scripts/runner.sh` starts the whole series from a small pod inside the cluster, so
+the machine that launched it can go offline:
 
 ```sh
-export BENCH_NODE=<the node>
+export BENCH_NODE=<node>
 scripts/harness.sh
 scripts/runner.sh
 kubectl -n prompp-bench exec bench-runner -- tail /work/series.log
 kubectl cp prompp-bench/bench-runner:/work/results ./results
 ```
 
-### Knobs
+### Variables
 
 | variable | default | meaning |
 |---|---|---|
-| `BENCH_NODE` | required | node the engines and the harness are pinned to |
-| `BENCH_NAMESPACE` | `prompp-bench` | benchmark namespace |
+| `BENCH_NODE` | required | node for the engines and the harness |
+| `BENCH_NAMESPACE` | `prompp-bench` | namespace |
 | `ENGINES` | all three | space separated engine names |
-| `RAMP` | `50000:300,200000:480,500000:600` | `series:seconds` steps |
+| `RAMP` | `50000:300,200000:480,500000:600` | steps as `series:seconds` |
 | `SEED` | `20261005` | series generation seed |
 | `INTERVAL` | `15s` | sample interval |
 | `CONCURRENCIES` | `1 4 16` | parallel requests of the same query |
-| `SUITES` | `heavy` | query suites, `heavy` is a superset of `core` |
-| `PER_QUERY` | `10s` | time budget per query and concurrency level |
+| `SUITES` | `heavy` | query suites, `heavy` includes `core` |
+| `PER_QUERY` | `10s` | time budget per query and concurrency |
 | `MIN_RUNS` | `5` | measured requests per query even past the budget |
-| `WARMUP` | `1` | unmeasured requests per query before measuring |
-| `EPOCH_MS` | `1767225600000` | pinned first sample timestamp |
+| `WARMUP` | `1` | unmeasured requests before measuring |
+| `EPOCH_MS` | `1767225600000` | timestamp of the first sample |
 
-## Outputs
+## Output of a run
 
-```
+```text
 results/<run-id>/
-  run.json                        node, engine and harness metadata
-  <engine>/ingest.json            per step throughput, latency and head stats
-  <engine>/samples.ingest.jsonl   resource samples during ingest
+  run.json                                   node, engines, harness version
+  <engine>/ingest.json                       throughput, latency, head stats per step
+  <engine>/samples.ingest.jsonl              resource samples during ingest
   <engine>/samples.query-<suite>-c<n>.jsonl  resource samples per query run
   <engine>/query-<suite>-c<n>.json
-  <engine>/dump-<suite>.json      sha256 of every query result
-  <engine>/disk.jsonl             data dir, WAL and block sizes per step
-  REPORT.md                       generated
-  charts/*.svg                    generated
+  <engine>/dump-<suite>.json                 sha256 of every query result
+  <engine>/disk.jsonl                        data dir, WAL and blocks over time
+  REPORT.md, charts/*.svg                    generated
 ```
 
-`run.sh` stops with an error if any artifact the report needs is missing or
-empty after it is copied out of the harness pod, and it replaces the node name
-with `bench-node` in every artifact so a run directory can be published as is.
+`run.sh` stops if an artifact the report needs is missing or empty after the copy out
+of the pod, and it replaces the node name with `bench-node` everywhere, so a run
+directory can be published as it is.
 
-## Reading the report
+## What the report compares
 
-The generator compares memory and cpu per active series, ingest throughput,
-query latency per query and concurrency level, and result equality. Each query
-is measured on its own with repeated requests, the tables show p50, p99 and the
-number of measured requests, and the summaries use geometric means so a few
-multi second range queries do not dominate. Result
-equality is the guard against benchmarking engines that quietly dropped data:
-the same pinned dataset is ingested into every engine and every query result is
-hashed, so any digest difference shows up as a mismatch.
+Memory and cpu per active series, ingest throughput, latency of every query at every
+concurrency, and result equality. Each query is measured on its own: one warmup
+request, then the workers repeat it until the time budget is spent. The tables give
+p50, p99 and the number of measured requests; summaries use geometric means, so a few
+range queries that take seconds do not outweigh the rest. Equality guards against
+comparing engines that silently dropped data: every engine gets the same pinned
+dataset and every query result is hashed.
 
-See METHODOLOGY.md for the fairness rules and the known threats to validity.
+Fairness rules and threats to validity are in [METHODOLOGY.md](METHODOLOGY.md).

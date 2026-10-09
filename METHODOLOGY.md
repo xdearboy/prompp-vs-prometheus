@@ -1,114 +1,120 @@
+**English** · [Русский](METHODOLOGY.ru.md)
+
 # Methodology
 
-## What is being compared
+## What is compared
 
-Three TSDB engines, one at a time, on one node:
+Three engines, one at a time, on one node:
 
-- Deckhouse Prom++ 0.8.15, a Prometheus fork with a C++ head and WAL and a PromQL engine with 3.x range selector semantics
-- upstream Prometheus 3.15.0
-- upstream Prometheus 2.55.1
+- Deckhouse Prom++ 0.8.15, a Prometheus fork with a C++ head and WAL and a PromQL
+  engine that uses 3.x range selector semantics
+- Prometheus 3.15.0
+- Prometheus 2.55.1
 
-Each engine runs as a single-replica StatefulSet with a size limited `30Gi`
-`emptyDir` data volume in the benchmark namespace. There is no replication, no
-`ServiceMonitor`, no `PodMonitor`, and no connection to the cluster monitoring
-stack. The engine scrapes nothing, it only receives remote write.
+Each runs as a single-replica StatefulSet with a 30 GiB `emptyDir` data volume in
+the benchmark namespace. No replication, no `ServiceMonitor`, no connection to the
+cluster monitoring. The engine scrapes nothing, it only receives remote write.
 
 ## Fairness rules
 
-1. **One engine at a time.** Engines never run concurrently, so they cannot compete
-   for cpu or memory bandwidth.
-2. **Identical inputs.** The same seed, the same label layout, the same series
-   counts and the same pinned sample timestamps for every engine.
-3. **Identical configuration.** Every engine gets the same config file, the same
-   four command line flags and the same `2000m`/`6Gi` limits.
-4. **Identical Go runtime.** Every engine gets `GOMEMLIMIT=5529MiB` and
-   `GOMAXPROCS=2` through the environment. The defaults differ: Prom++ 0.8.15 and
-   Prometheus 2.55.1 keep `auto-gomemlimit` and `auto-gomaxprocs` behind opt-in
-   feature flags, Prometheus 3.x turns both on. Without pinning, the 2.x based
-   engines would run without a Go memory limit and, when built with a Go older
-   than 1.25, with one Go processor per node core under a two core quota. The values each engine reports through
-   `/api/v1/status/runtimeinfo` are recorded in every resource sample and shown in
+1. **One engine at a time.** They never compete for cpu or memory bandwidth.
+2. **Same input.** Same seed, label layout, series counts and sample timestamps.
+3. **Same configuration.** Same config file, same flags, same `2000m` / `6Gi` limits.
+4. **Same Go runtime.** Every engine gets `GOMEMLIMIT=5529MiB` and `GOMAXPROCS=2`
+   through the environment. Their defaults differ: Prom++ 0.8.15 and Prometheus
+   2.55.1 keep `auto-gomemlimit` and `auto-gomaxprocs` behind opt-in feature flags,
+   Prometheus 3.x enables both. Without pinning, the 2.x based engines would run with
+   no memory limit and, if built with Go older than 1.25, with one Go processor per
+   core of the node under a two core quota. What each engine reports through
+   `/api/v1/status/runtimeinfo` is stored with every resource sample and shown in
    the report.
-5. **Fresh state.** The StatefulSet and its volume are deleted between engines, so
-   no engine inherits another engine's WAL or blocks.
-6. **Identical queries.** The same PromQL suite at the same concurrency levels,
-   evaluated at the same pinned timestamp against a data set of the same size and
-   shape.
-7. **Node pinned.** Every object carries `nodeName`, so the kernel, the page cache
-   and the cgroup hierarchy are the same for all engines.
+5. **Fresh state.** The StatefulSet and its volume are deleted between engines, so no
+   engine inherits another one's WAL or blocks.
+6. **Same queries.** The same PromQL suite at the same concurrency levels, evaluated
+   at the same timestamp on data of the same size and shape.
+7. **Pinned node.** Every object has `nodeName`, so the kernel, page cache and cgroup
+   hierarchy are the same for all engines.
 
 ## Phases
 
 | phase | what happens |
 |---|---|
-| ingest | ramp active series through `50k`, `200k`, `500k` and hold each step |
-| settle | a 30 second pause so head stats and disk usage can be read |
-| query | measure every query of the suite at each concurrency level |
+| ingest | ramp the active series through 50k, 200k and 500k, hold each step |
+| settle | 30 seconds of pause to read head stats and disk usage |
+| query | run every query of the suite at each concurrency level |
 | dump | hash every query result for the equality check |
 
-## Measurements
+## What is measured
 
-- **Ingest throughput.** Samples per second actually achieved per ramp step.
-- **Request latency.** p50 and p99 per remote write request, and per sample.
-- **Head stats.** Series, chunks and label pairs read from the engine's own API.
-- **Memory.** `process_resident_memory_bytes` from the engine's self metrics, plus
-  the cgroup working set from cAdvisor through the kubelet proxy.
-- **Cpu.** Rate of the cAdvisor container cpu counter, falling back to
-  `process_cpu_seconds_total`, sampled every two seconds.
-- **Disk.** Data directory, WAL and block sizes from a sidecar that mounts the
-  same volume, every 15 seconds, attributed to the step by the last sample in it.
-- **Query latency.** Each query is measured on its own. One unmeasured warmup
-  request, then `c` workers repeat the same query until the time budget is spent
-  and at least the minimum number of requests finished. The report gives p50,
-  p99 and the number of measured requests per query, and geometric means across
-  queries so that a few multi second range queries do not dominate the summary.
-  A separate resource collector runs for every suite and concurrency level, so
-  cpu and memory are attributed to that run only.
-- **Result equality.** sha256 of the canonicalised query result per engine.
+- **Ingest throughput.** Samples per second actually achieved in each step.
+- **Request latency.** p50 and p99 per remote write request.
+- **Head stats.** Series, chunks and label pairs from the engine's own API.
+- **Memory.** `process_resident_memory_bytes` from the engine and the cgroup working
+  set from cAdvisor through the kubelet proxy.
+- **Cpu.** Rate of the cAdvisor container cpu counter, `process_cpu_seconds_total`
+  as a fallback, sampled every two seconds.
+- **Disk.** Data directory, WAL and block sizes from a sidecar that mounts the same
+  volume, every 15 seconds. A step gets the last sample taken inside it.
+- **Query latency.** Each query on its own: one unmeasured warmup request, then `c`
+  workers repeat the query until the time budget is spent and at least the minimum
+  number of requests finished. The report shows p50, p99 and the number of requests per
+  query, and geometric means over all queries, so a few range queries that take
+  seconds do not dominate. A separate resource collector runs for every suite and
+  concurrency level, so cpu and memory belong to that run only.
+- **Result equality.** sha256 of the canonicalised result of each query, per engine.
 
-Per-series figures use the last sample of the step divided by the active series of
-that step, which is the number that scales when a fleet grows.
+Per series figures divide the last sample of a step by the active series of that step,
+which is the number that scales when a fleet grows.
+
+## Repeated runs
+
+A single run cannot show variance. The published results are 12 full runs started
+every four hours for two days, from a pod inside the cluster. The aggregate takes the
+median of every figure and shows the minimum, the maximum and the spread as a share of
+the median. The fastest and the slowest run differ by less than 8 percent everywhere
+except the working set of Prom++ (12 percent), and the gaps between the engines are
+several times larger than that.
 
 ## Threats to validity
 
-- **Shared node.** The node runs control plane components. Sequential execution
-  limits but does not eliminate interference from them. Background load inflates
-  every engine roughly equally, but it adds variance.
-- **WAL is not like for like.** Prom++ has its own WAL format. Upstream engines run
-  with their default snappy WAL compression. Disk and WAL figures compare what a
-  user gets by default, not an equal encoding.
-- **GOMEMLIMIT covers the Go heap only.** Prom++ keeps most of its head in C++
-  memory managed by jemalloc, which the Go limit does not govern. The limit is
-  pinned for equal Go behaviour, not to cap total memory.
-- **Single node, single replica.** No replication overhead is measured. A clustered
-  or replicated deployment has a different cost profile.
-- **Short runs.** Each ramp step is minutes rather than hours, so compaction,
-  mmap reuse and long-tail allocator behaviour are only partially exercised.
-- **Small samples for slow queries.** Range queries that take seconds get only the
-  minimum number of measured requests. Their p99 is close to the maximum, compare
-  the median.
-- **Range selector semantics.** Prometheus 3.0 made range selectors left-open. Prom++
-  0.8.15 and Prometheus 3.15.0 agree with each other and differ from 2.55.1 on
-  five rate and `_over_time` queries, because a sample on the window start is
-  counted by 2.55.1 only. The report says so next to the equality table.
-- **Synthetic data.** The generator produces realistic label cardinality and a
-  gauge/counter mix, but it is not a production scrape. Query plans behave
-  differently against real label sets.
+- **Shared node.** The node also runs control plane components. Running one engine at
+  a time limits that interference but does not remove it. It hits every engine about
+  equally and adds variance. The repeated runs at different hours of the day exist to
+  show how large it is.
+- **WAL is not like for like.** Prom++ has its own WAL format, the upstream engines
+  use their default snappy compression. Disk and WAL figures compare what a user gets
+  by default, not equal encodings.
+- **`GOMEMLIMIT` covers the Go heap only.** Prom++ keeps most of its head in C++
+  memory managed by jemalloc, which the Go limit does not govern. The limit is pinned
+  so that the Go behaviour is equal, not to cap total memory.
+- **Single node, single replica.** Replication cost is not measured.
+- **Short steps.** A ramp step lasts minutes, not hours, so compaction, mmap reuse and
+  long-tail allocator behaviour are only partly exercised.
+- **Few requests for slow queries.** A range query that takes seconds gets only the
+  minimum number of requests. Its p99 is close to the maximum, compare the median.
+- **Range selector semantics.** Prometheus 3.0 made range selectors left-open. On five
+  `rate` and `_over_time` queries Prom++ 0.8.15 and Prometheus 3.15.0 agree with each
+  other and differ from 2.55.1, because 2.55.1 counts the sample that sits exactly on
+  the window start. The report states this next to the equality table. In
+  `promql/engine.go` Prom++ drops samples with `T <= mint`, 2.55.1 with `T < mint`.
+- **Synthetic data.** The generator gives realistic label cardinality and a mix of
+  gauges and counters, but it is not a production scrape. Query plans behave
+  differently on real label sets.
 
 ## Correctness
 
-Throughput numbers are meaningless if an engine dropped samples. The dataset is
-pinned to a fixed epoch, every engine receives the same bytes, and every query
-result is canonicalised and hashed. Any digest difference between engines is
-reported as a mismatch rather than being averaged away.
+Throughput figures mean nothing if an engine dropped samples. The dataset is pinned to
+a fixed epoch, every engine receives the same bytes, and every query result is
+canonicalised and hashed. A different digest is reported as a mismatch and never
+averaged away.
 
-The harness also refuses to produce a report from incomplete data. After each
-engine the artifacts are copied out of the harness pod and `run.sh` stops if any
-file the report needs is missing or empty.
+The harness also refuses to produce a report from incomplete data: after each engine
+the artifacts are copied out of the harness pod, and `run.sh` stops if a file the report
+needs is missing or empty.
 
 ## Reproducibility
 
-The harness records the node description, the exact images, the compact flag list
-and the declared environment into `results/<run-id>/run.json`. Timestamps, seed and
-ramp are all explicit inputs, so two runs with the same inputs ingest the same
-samples into the same query windows.
+The harness writes the node description, the exact images, the flag list and the
+declared environment to `results/<run-id>/run.json`. Timestamps, seed and ramp are
+explicit inputs, so two runs with the same inputs ingest the same samples into the
+same query windows.
