@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strings"
 
 	"github.com/xdearboy/prompp-vs-prometheus/internal/report"
 )
@@ -31,16 +32,22 @@ func main() {
 	}
 	sort.Strings(runs)
 
-	body, err := report.Aggregate(*root, runs)
-	if err != nil {
-		log.Fatal(err)
-	}
 	path := *out
 	if path == "" {
 		path = filepath.Join(*root, "AGGREGATE.md")
 	}
-	if err := report.WriteFile(path, body); err != nil {
-		log.Fatal(err)
+	for _, lang := range []string{"en", "ru"} {
+		body, err := report.Aggregate(*root, runs, lang)
+		if err != nil {
+			log.Fatal(err)
+		}
+		target := path
+		if lang == "ru" {
+			target = strings.TrimSuffix(path, ".md") + ".ru.md"
+		}
+		if err := report.WriteFile(target, body); err != nil {
+			log.Fatal(err)
+		}
 	}
 	fmt.Printf("%d runs, %s\n", len(runs), path)
 }

@@ -22,7 +22,7 @@ func TestMedian(t *testing.T) {
 }
 
 func TestAggregatePublishedRun(t *testing.T) {
-	body, err := Aggregate("../../runs/series-20261006", []string{"20261006T210616Z"})
+	body, err := Aggregate("../../runs/series-20261006", []string{"20261006T210616Z"}, "en")
 	if err != nil {
 		t.Fatal(err)
 	}

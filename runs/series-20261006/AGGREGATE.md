@@ -1,3 +1,5 @@
+**English** · [Русский](AGGREGATE.ru.md)
+
 # Aggregate of 12 runs
 
 Each cell is the median over runs with the minimum and maximum, and the spread as the share of the median.

@@ -13,6 +13,7 @@ import (
 )
 
 type Bundle struct {
+	Lang    string
 	Root    string
 	RunID   string
 	Meta    results.RunMeta

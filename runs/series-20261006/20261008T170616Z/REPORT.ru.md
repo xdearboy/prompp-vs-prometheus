@@ -1,62 +1,62 @@
-**English** · [Русский](REPORT.ru.md)
+[English](REPORT.md) · **Русский**
 
-# Prom++ versus Prometheus
+# Prom++ против Prometheus
 
-Generated from the raw artifacts in this directory. Every number below comes from a file in the run directory, nothing is typed in by hand.
+Создано из исходных файлов этой папки. Каждое число ниже взято из файла прогона, вручную ничего не вписано.
 
-Run id: `20261008T170616Z`
+Номер прогона: `20261008T170616Z`
 
-## Environment
+## Окружение
 
-| item | value |
+| параметр | значение |
 |---|---|
-| node | bench-node |
-| cpu | AMD EPYC 7713 64-Core Processor |
-| cores | 8 |
-| memory | 15.6 GiB |
-| kernel | 6.8.0-142-generic |
-| os | Ubuntu 24.04.4 LTS |
-| arch | amd64 |
-| data filesystem | 151.5 GiB free of 177.1 GiB |
+| узел | bench-node |
+| процессор | AMD EPYC 7713 64-Core Processor |
+| ядер | 8 |
+| память | 15.6 GiB |
+| ядро | 6.8.0-142-generic |
+| ОС | Ubuntu 24.04.4 LTS |
+| архитектура | amd64 |
+| файловая система данных | свободно 151.5 GiB из 177.1 GiB |
 | container_runtime | containerd://2.3.4-k3s1.36 |
 | instance_type | k3s |
 | kubelet_version | v1.36.4+k3s1 |
 | operating_system | linux |
-| harness | harness/b3000ef-7f49340 |
+| нагрузочный код | harness/b3000ef-7f49340 |
 
-## Engines
+## Движки
 
-Declared settings come from the manifests, observed ones from the engine's own runtimeinfo and flags endpoints during the run.
+Заданные настройки взяты из манифестов, наблюдаемые из runtimeinfo и списка флагов самого движка во время прогона.
 
-| engine | image | cpu limit | memory limit | env | observed GOMEMLIMIT | observed GOMAXPROCS | WAL compression | args | notes |
+| движок | образ | лимит процессора | лимит памяти | окружение | GOMEMLIMIT (факт) | GOMAXPROCS (факт) | сжатие WAL | аргументы | заметки |
 |---|---|---|---|---|---|---|---|---|---|
 | `prompp-0815` | `mirror.gcr.io/prompp/prompp:0.8.15` | 2.00 cores | 6.0 GiB | `GOMEMLIMIT=5529MiB GOMAXPROCS=2` | 5.4 GiB | 2 | true | `--config.file=... --storage.tsdb.path=... --web.enable-remote-write-receiver --web.enable-lifecycle` | C++ head and WAL |
 | `prom-3150` | `quay.io/prometheus/prometheus:v3.15.0` | 2.00 cores | 6.0 GiB | `GOMEMLIMIT=5529MiB GOMAXPROCS=2` | 5.4 GiB | 2 | true | `--config.file=... --storage.tsdb.path=... --web.enable-remote-write-receiver --web.enable-lifecycle` | upstream latest |
 | `prom-2551` | `quay.io/prometheus/prometheus:v2.55.1` | 2.00 cores | 6.0 GiB | `GOMEMLIMIT=5529MiB GOMAXPROCS=2` | 5.4 GiB | 2 | true | `--config.file=... --storage.tsdb.path=... --web.enable-remote-write-receiver --web.enable-lifecycle` | closed range selectors, the semantics before 3.0 |
 
-## Ingest and head memory
+## Запись и память головного блока
 
-![compared with Prometheus 3.15.0](charts/summary.svg)
+![в сравнении с Prometheus 3.15.0](charts/summary.svg)
 
-![resident memory by series](charts/rss-by-series.svg)
+![память процесса по числу серий](charts/rss-by-series.svg)
 
-![cpu cores by series](charts/cpu-by-series.svg)
+![процессор по числу серий](charts/cpu-by-series.svg)
 
-![resident memory over time](charts/rss-timeline.svg)
+![память процесса во времени](charts/rss-timeline.svg)
 
-![data directory by series](charts/disk-by-series.svg)
+![каталог данных по числу серий](charts/disk-by-series.svg)
 
 ### prom-2551
 
-Interval 15s, batch 5000 series, 4 workers, 27400000 samples sent, 0 failed.
+Интервал 15 с, пачка 5000 серий, потоков 4, отправлено точек 27400000, из них потеряно 0.
 
-| active series | samples/s | head series | head chunks | RSS avg | RSS p95 | RSS max | working set max | cpu cores avg | cpu cores max | data dir | WAL | rss/series | disk/series |
+| активных серий | точек/с | серий в головном блоке | чанков | RSS ср. | RSS p95 | RSS макс. | рабочий набор макс. | ядер ср. | ядер макс. | каталог данных | WAL | RSS/серия | диск/серия |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | 50000 | 3333 | 50000 | 50000 | 171.4 MiB | 189.1 MiB | 192.7 MiB | 135.8 MiB | 0.03 | 0.38 | 11.4 MiB | 11.4 MiB | 3.4 KiB | 239 B |
 | 200000 | 13333 | 200000 | 200000 | 439.4 MiB | 486.6 MiB | 509.0 MiB | 432.7 MiB | 0.09 | 1.35 | 82.3 MiB | 82.3 MiB | 2.2 KiB | 431 B |
 | 500000 | 33333 | 500000 | 500000 | 1.1 GiB | 1.3 GiB | 1.3 GiB | 1.3 GiB | 0.23 | 3.27 | 298.0 MiB | 298.0 MiB | 2.8 KiB | 624 B |
 
-| active series | elapsed / planned | write request p50 | p99 | 2xx | 4xx | 5xx | client errors |
+| активных серий | прошло / план | запрос записи p50 | p99 | 2xx | 4xx | 5xx | ошибки клиента |
 |---|---|---|---|---|---|---|---|
 | 50000 | 300 s / 300 s | 52 ms | 117 ms | 200 | 0 | 0 | 0 |
 | 200000 | 480 s / 480 s | 30 ms | 204 ms | 1280 | 0 | 0 | 0 |
@@ -64,15 +64,15 @@ Interval 15s, batch 5000 series, 4 workers, 27400000 samples sent, 0 failed.
 
 ### prom-3150
 
-Interval 15s, batch 5000 series, 4 workers, 27400000 samples sent, 0 failed.
+Интервал 15 с, пачка 5000 серий, потоков 4, отправлено точек 27400000, из них потеряно 0.
 
-| active series | samples/s | head series | head chunks | RSS avg | RSS p95 | RSS max | working set max | cpu cores avg | cpu cores max | data dir | WAL | rss/series | disk/series |
+| активных серий | точек/с | серий в головном блоке | чанков | RSS ср. | RSS p95 | RSS макс. | рабочий набор макс. | ядер ср. | ядер макс. | каталог данных | WAL | RSS/серия | диск/серия |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | 50000 | 3333 | 50000 | 50000 | 184.4 MiB | 207.7 MiB | 210.1 MiB | 149.6 MiB | 0.02 | 0.37 | 11.5 MiB | 11.5 MiB | 4.3 KiB | 241 B |
 | 200000 | 13333 | 200000 | 200000 | 481.8 MiB | 528.3 MiB | 550.2 MiB | 473.4 MiB | 0.07 | 1.11 | 82.8 MiB | 82.7 MiB | 2.3 KiB | 433 B |
 | 500000 | 33333 | 500000 | 500000 | 1.1 GiB | 1.3 GiB | 1.3 GiB | 1.3 GiB | 0.20 | 2.75 | 303.5 MiB | 303.5 MiB | 2.8 KiB | 636 B |
 
-| active series | elapsed / planned | write request p50 | p99 | 2xx | 4xx | 5xx | client errors |
+| активных серий | прошло / план | запрос записи p50 | p99 | 2xx | 4xx | 5xx | ошибки клиента |
 |---|---|---|---|---|---|---|---|
 | 50000 | 300 s / 300 s | 41 ms | 113 ms | 200 | 0 | 0 | 0 |
 | 200000 | 480 s / 480 s | 35 ms | 124 ms | 1280 | 0 | 0 | 0 |
@@ -80,25 +80,25 @@ Interval 15s, batch 5000 series, 4 workers, 27400000 samples sent, 0 failed.
 
 ### prompp-0815
 
-Interval 15s, batch 5000 series, 4 workers, 27400000 samples sent, 0 failed.
+Интервал 15 с, пачка 5000 серий, потоков 4, отправлено точек 27400000, из них потеряно 0.
 
-| active series | samples/s | head series | head chunks | RSS avg | RSS p95 | RSS max | working set max | cpu cores avg | cpu cores max | data dir | WAL | rss/series | disk/series |
+| активных серий | точек/с | серий в головном блоке | чанков | RSS ср. | RSS p95 | RSS макс. | рабочий набор макс. | ядер ср. | ядер макс. | каталог данных | WAL | RSS/серия | диск/серия |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | 50000 | 3333 | 50000 | 50000 | 103.2 MiB | 109.4 MiB | 110.3 MiB | 48.4 MiB | 0.01 | 0.20 | 6.2 MiB | 4.0 KiB | 2.2 KiB | 130 B |
 | 200000 | 13333 | 200000 | 200000 | 157.2 MiB | 180.1 MiB | 187.4 MiB | 118.0 MiB | 0.03 | 0.44 | 72.5 MiB | 4.0 KiB | 748 B | 380 B |
 | 500000 | 33333 | 500000 | 500000 | 249.9 MiB | 309.9 MiB | 325.3 MiB | 239.1 MiB | 0.05 | 0.73 | 281.0 MiB | 4.0 KiB | 482 B | 589 B |
 
-| active series | elapsed / planned | write request p50 | p99 | 2xx | 4xx | 5xx | client errors |
+| активных серий | прошло / план | запрос записи p50 | p99 | 2xx | 4xx | 5xx | ошибки клиента |
 |---|---|---|---|---|---|---|---|
 | 50000 | 300 s / 300 s | 11 ms | 70 ms | 200 | 0 | 0 | 0 |
 | 200000 | 480 s / 480 s | 11 ms | 82 ms | 1280 | 0 | 0 | 0 |
 | 500000 | 600 s / 600 s | 12 ms | 59 ms | 4000 | 0 | 0 | 0 |
 
-### Comparison
+### Сравнение
 
-Lower is better for every memory and cpu column. RSS is the engine's own process_resident_memory_bytes, working set is the cgroup figure the kubelet evicts and OOM kills on.
+Для всех столбцов с памятью и процессором меньше значит лучше. RSS — это `process_resident_memory_bytes` самого движка, рабочий набор — значение cgroup, по которому kubelet выселяет поды и срабатывает OOM.
 
-| active series | engine | RSS avg | bytes/series | working set max | cpu cores avg | data dir | samples/s |
+| активных серий | движок | RSS ср. | байт на серию | рабочий набор макс. | ядер ср. | каталог данных | точек/с |
 |---|---|---|---|---|---|---|---|
 | 50000 | `prom-2551` | 171.4 MiB | 3.4 KiB | 135.8 MiB | 0.03 | 11.4 MiB | 3333 |
 | 50000 | `prom-3150` | 184.4 MiB | 4.3 KiB | 149.6 MiB | 0.02 | 11.5 MiB | 3333 |
@@ -110,19 +110,19 @@ Lower is better for every memory and cpu column. RSS is the engine's own process
 | 500000 | `prom-3150` | 1.1 GiB | 2.8 KiB | 1.3 GiB | 0.20 | 303.5 MiB | 33333 |
 | 500000 | `prompp-0815` | 249.9 MiB | 482 B | 239.1 MiB | 0.05 | 281.0 MiB | 33333 |
 
-At the largest step, `prompp-0815` needs the least resident memory per series: 482 B of resident memory per active series, the lowest of the compared engines.
+На самой большой ступени меньше всего памяти на серию нужно `prompp-0815`: 482 B of resident memory per active series, the lowest of the compared engines.
 
-## Query latency
+## Время запросов
 
-Each query runs on its own: one unmeasured warmup request, then the given number of workers repeat it until the time budget is spent and a minimum number of requests finished. `n` is the number of measured requests. With a small `n` the p99 is close to the maximum, so the median is the figure to compare. The geometric mean weighs every query equally, so a few multi second range queries do not drown the rest.
+Каждый запрос идёт отдельно: один пробный запрос без учёта, затем заданное число потоков повторяет его, пока не истечёт отведённое время и не наберётся минимальное число запросов. `n` — число учтённых запросов. При малом `n` значение p99 близко к максимуму, поэтому сравнивать лучше медиану. Геометрическое среднее учитывает все запросы поровну, поэтому несколько запросов, которые идут секундами, не заглушают остальные.
 
-![latency under concurrency](charts/latency-scaling.svg)
+![время запросов при разной параллельности](charts/latency-scaling.svg)
 
-### Concurrency 1
+### Параллельность 1
 
-![median query latency, concurrency 1](charts/query-p50-c1.svg)
+![медианное время запросов, параллельность 1](charts/query-p50-c1.svg)
 
-| engine | suite | queries | requests | errors | geomean p50 | geomean p99 | slowest query p50 | cpu cores avg | working set max |
+| движок | набор | запросов | замеров | ошибок | p50 (геом.) | p99 (геом.) | p50 самого медленного | ядер ср. | рабочий набор макс. |
 |---|---|---|---|---|---|---|---|---|---|
 | `prom-2551` | heavy | 38 | 10908 | 0 | 346 ms | 575 ms | `range_quantile` 5.24 s | 1.23 | 1.9 GiB |
 | `prom-3150` | heavy | 38 | 14956 | 0 | 348 ms | 523 ms | `range_quantile` 5.02 s | 1.22 | 1.8 GiB |
@@ -169,11 +169,11 @@ Each query runs on its own: one unmeasured warmup request, then the given number
 | `topk` | instant | 201 ms / 369 ms (46) | 210 ms / 359 ms (46) | 142 ms / 182 ms (70) | `prompp-0815` |
 | `vector_matching` | instant | 592 ms / 854 ms (16) | 613 ms / 788 ms (16) | 547 ms / 564 ms (19) | `prompp-0815` |
 
-### Concurrency 4
+### Параллельность 4
 
-![median query latency, concurrency 4](charts/query-p50-c4.svg)
+![медианное время запросов, параллельность 4](charts/query-p50-c4.svg)
 
-| engine | suite | queries | requests | errors | geomean p50 | geomean p99 | slowest query p50 | cpu cores avg | working set max |
+| движок | набор | запросов | замеров | ошибок | p50 (геом.) | p99 (геом.) | p50 самого медленного | ядер ср. | рабочий набор макс. |
 |---|---|---|---|---|---|---|---|---|---|
 | `prom-2551` | heavy | 38 | 14393 | 0 | 855 ms | 1.51 s | `range_quantile` 15.01 s | 1.92 | 2.9 GiB |
 | `prom-3150` | heavy | 38 | 20850 | 0 | 828 ms | 1.33 s | `range_quantile` 13.99 s | 1.89 | 3.4 GiB |
@@ -220,11 +220,11 @@ Each query runs on its own: one unmeasured warmup request, then the given number
 | `topk` | instant | 591 ms / 1.11 s (66) | 497 ms / 819 ms (77) | 356 ms / 538 ms (111) | `prompp-0815` |
 | `vector_matching` | instant | 1.70 s / 2.03 s (25) | 1.56 s / 1.83 s (28) | 1.19 s / 1.46 s (36) | `prompp-0815` |
 
-### Concurrency 16
+### Параллельность 16
 
-![median query latency, concurrency 16](charts/query-p50-c16.svg)
+![медианное время запросов, параллельность 16](charts/query-p50-c16.svg)
 
-| engine | suite | queries | requests | errors | geomean p50 | geomean p99 | slowest query p50 | cpu cores avg | working set max |
+| движок | набор | запросов | замеров | ошибок | p50 (геом.) | p99 (геом.) | p50 самого медленного | ядер ср. | рабочий набор макс. |
 |---|---|---|---|---|---|---|---|---|---|
 | `prom-2551` | heavy | 38 | 19507 | 0 | 3.45 s | 4.96 s | `range_quantile` 56.75 s | 1.93 | 5.4 GiB |
 | `prom-3150` | heavy | 38 | 22122 | 0 | 3.35 s | 4.60 s | `range_quantile` 51.75 s | 1.95 | 5.4 GiB |
@@ -271,59 +271,59 @@ Each query runs on its own: one unmeasured warmup request, then the given number
 | `topk` | instant | 2.22 s / 3.40 s (79) | 2.07 s / 2.95 s (83) | 1.39 s / 2.41 s (121) | `prompp-0815` |
 | `vector_matching` | instant | 6.11 s / 7.67 s (32) | 5.65 s / 7.60 s (32) | 4.68 s / 5.67 s (43) | `prompp-0815` |
 
-## Result equality
+## Совпадение результатов
 
-Every engine received the same samples and every query is evaluated at the same pinned timestamp, so a result that differs points at a semantic difference between engines or at lost data. Each cell is the sha256 of the canonicalised result.
+Все движки получили одни и те же точки, а каждый запрос вычисляется в один и тот же закреплённый момент, так что отличающийся результат указывает на смысловое различие между движками или на потерянные данные. В каждой ячейке sha256 результата, приведённого к единому виду.
 
-A differing row means the engines disagree on the same data at the same timestamp. All of them are rate or `_over_time` range queries. Prometheus 3.0 made range selectors left-open, a sample exactly on the window start is no longer included, and the Prom++ 0.8.15 PromQL engine already drops it (`promql/engine.go`, `floats[drop].T <= mint`), unlike 2.55.1 (`< mint`). The synthetic samples sit on the window edge, so 2.55.1 sees one extra sample.
+Строка с различием значит, что движки по-разному отвечают на одни и те же данные в один и тот же момент. Все такие запросы — `rate` или `_over_time` по диапазону. В Prometheus 3.0 диапазон стал открытым слева: точка ровно на левой границе окна больше не входит в расчёт. PromQL-движок Prom++ 0.8.15 её уже отбрасывает (`promql/engine.go`, `floats[drop].T <= mint`), а 2.55.1 нет (`< mint`). Искусственные точки лежат ровно на границе окна, поэтому 2.55.1 видит на одну точку больше.
 
-| query | `prom-2551` | `prom-3150` | `prompp-0815` | identical |
+| запрос | `prom-2551` | `prom-3150` | `prompp-0815` | совпадает |
 |---|---|---|---|---|
-| `absent` | ca3d163bab05 (1 series) | ca3d163bab05 (1 series) | ca3d163bab05 (1 series) | yes |
-| `alerting_shape` | 433e69a3597b (100 series) | e10ba8156cd2 (100 series) | e10ba8156cd2 (100 series) | no |
-| `avg_over_pods` | 4f6b6c188f7f (100 series) | 4f6b6c188f7f (100 series) | 4f6b6c188f7f (100 series) | yes |
-| `avg_over_time` | f1f392b0c78d (62500 series) | f1f392b0c78d (62500 series) | f1f392b0c78d (62500 series) | yes |
-| `binary_scalar` | ca3d163bab05 (1 series) | ca3d163bab05 (1 series) | ca3d163bab05 (1 series) | yes |
-| `bottomk` | 75dc8cd99593 (5 series) | 75dc8cd99593 (5 series) | 75dc8cd99593 (5 series) | yes |
-| `clamp` | f1f392b0c78d (62500 series) | f1f392b0c78d (62500 series) | f1f392b0c78d (62500 series) | yes |
-| `count_by_job` | 07c02c1348ea (1 series) | 07c02c1348ea (1 series) | 07c02c1348ea (1 series) | yes |
-| `count_values` | e792d90cc0a2 (62500 series) | e792d90cc0a2 (62500 series) | e792d90cc0a2 (62500 series) | yes |
-| `double_subquery` | 83f99d686699 (100 series) | 55416fa4082f (100 series) | 55416fa4082f (100 series) | no |
-| `group_left_many` | f1f392b0c78d (62500 series) | f1f392b0c78d (62500 series) | f1f392b0c78d (62500 series) | yes |
-| `increase` | 559e24dc9a48 (62500 series) | 559e24dc9a48 (62500 series) | 559e24dc9a48 (62500 series) | yes |
-| `irate` | 559e24dc9a48 (62500 series) | 559e24dc9a48 (62500 series) | 559e24dc9a48 (62500 series) | yes |
-| `join` | 4f6b6c188f7f (100 series) | 4f6b6c188f7f (100 series) | 4f6b6c188f7f (100 series) | yes |
-| `label_replace` | d3ae67deabaa (62500 series) | d3ae67deabaa (62500 series) | d3ae67deabaa (62500 series) | yes |
-| `last_over_time_all` | ca3d163bab05 (1 series) | ca3d163bab05 (1 series) | ca3d163bab05 (1 series) | yes |
-| `matchers_numeric` | bf8394774b5f (38487 series) | bf8394774b5f (38487 series) | bf8394774b5f (38487 series) | yes |
-| `max_over_time` | f1f392b0c78d (62500 series) | f1f392b0c78d (62500 series) | f1f392b0c78d (62500 series) | yes |
-| `nested_aggregate` | ca3d163bab05 (1 series) | ca3d163bab05 (1 series) | ca3d163bab05 (1 series) | yes |
-| `offset` | d5542cb672bf (62500 series) | d5542cb672bf (62500 series) | d5542cb672bf (62500 series) | yes |
-| `or_fallback` | a712401a23e5 (62500 series) | a712401a23e5 (62500 series) | a712401a23e5 (62500 series) | yes |
-| `quantile_over_time` | f1f392b0c78d (62500 series) | f1f392b0c78d (62500 series) | f1f392b0c78d (62500 series) | yes |
-| `range_gauge` | d5542cb672bf (62500 series) | d5542cb672bf (62500 series) | d5542cb672bf (62500 series) | yes |
-| `range_quantile` | 8e52194734df (62500 series) | 4f0d1e3a91e8 (62500 series) | 4f0d1e3a91e8 (62500 series) | no |
-| `range_subquery` | 82623d225556 (62500 series) | 82623d225556 (62500 series) | 82623d225556 (62500 series) | yes |
-| `range_sum_rate` | 8dcd40399f41 (100 series) | d73a595a3678 (100 series) | d73a595a3678 (100 series) | no |
-| `rate` | 559e24dc9a48 (62500 series) | 559e24dc9a48 (62500 series) | 559e24dc9a48 (62500 series) | yes |
-| `rate_histogram` | 559e24dc9a48 (62500 series) | 559e24dc9a48 (62500 series) | 559e24dc9a48 (62500 series) | yes |
-| `recording_rule_shape` | eb8b58afb326 (1 series) | 8476e35ab60f (1 series) | 8476e35ab60f (1 series) | no |
-| `regex_name` | fd6cd5bf0d07 (187500 series) | fd6cd5bf0d07 (187500 series) | fd6cd5bf0d07 (187500 series) | yes |
-| `selector` | a712401a23e5 (62500 series) | a712401a23e5 (62500 series) | a712401a23e5 (62500 series) | yes |
-| `selector_labels` | b5f636cb8557 (3125 series) | b5f636cb8557 (3125 series) | b5f636cb8557 (3125 series) | yes |
-| `sort_desc` | 4f6b6c188f7f (100 series) | 4f6b6c188f7f (100 series) | 4f6b6c188f7f (100 series) | yes |
-| `stddev` | 4f6b6c188f7f (100 series) | 4f6b6c188f7f (100 series) | 4f6b6c188f7f (100 series) | yes |
-| `sum` | ca3d163bab05 (1 series) | ca3d163bab05 (1 series) | ca3d163bab05 (1 series) | yes |
-| `sum_by_namespace` | 4f6b6c188f7f (100 series) | 4f6b6c188f7f (100 series) | 4f6b6c188f7f (100 series) | yes |
-| `topk` | 77b447784c27 (20 series) | 77b447784c27 (20 series) | 77b447784c27 (20 series) | yes |
-| `vector_matching` | f1f392b0c78d (62500 series) | f1f392b0c78d (62500 series) | f1f392b0c78d (62500 series) | yes |
+| `absent` | ca3d163bab05 (1 series) | ca3d163bab05 (1 series) | ca3d163bab05 (1 series) | да |
+| `alerting_shape` | 433e69a3597b (100 series) | e10ba8156cd2 (100 series) | e10ba8156cd2 (100 series) | нет |
+| `avg_over_pods` | 4f6b6c188f7f (100 series) | 4f6b6c188f7f (100 series) | 4f6b6c188f7f (100 series) | да |
+| `avg_over_time` | f1f392b0c78d (62500 series) | f1f392b0c78d (62500 series) | f1f392b0c78d (62500 series) | да |
+| `binary_scalar` | ca3d163bab05 (1 series) | ca3d163bab05 (1 series) | ca3d163bab05 (1 series) | да |
+| `bottomk` | 75dc8cd99593 (5 series) | 75dc8cd99593 (5 series) | 75dc8cd99593 (5 series) | да |
+| `clamp` | f1f392b0c78d (62500 series) | f1f392b0c78d (62500 series) | f1f392b0c78d (62500 series) | да |
+| `count_by_job` | 07c02c1348ea (1 series) | 07c02c1348ea (1 series) | 07c02c1348ea (1 series) | да |
+| `count_values` | e792d90cc0a2 (62500 series) | e792d90cc0a2 (62500 series) | e792d90cc0a2 (62500 series) | да |
+| `double_subquery` | 83f99d686699 (100 series) | 55416fa4082f (100 series) | 55416fa4082f (100 series) | нет |
+| `group_left_many` | f1f392b0c78d (62500 series) | f1f392b0c78d (62500 series) | f1f392b0c78d (62500 series) | да |
+| `increase` | 559e24dc9a48 (62500 series) | 559e24dc9a48 (62500 series) | 559e24dc9a48 (62500 series) | да |
+| `irate` | 559e24dc9a48 (62500 series) | 559e24dc9a48 (62500 series) | 559e24dc9a48 (62500 series) | да |
+| `join` | 4f6b6c188f7f (100 series) | 4f6b6c188f7f (100 series) | 4f6b6c188f7f (100 series) | да |
+| `label_replace` | d3ae67deabaa (62500 series) | d3ae67deabaa (62500 series) | d3ae67deabaa (62500 series) | да |
+| `last_over_time_all` | ca3d163bab05 (1 series) | ca3d163bab05 (1 series) | ca3d163bab05 (1 series) | да |
+| `matchers_numeric` | bf8394774b5f (38487 series) | bf8394774b5f (38487 series) | bf8394774b5f (38487 series) | да |
+| `max_over_time` | f1f392b0c78d (62500 series) | f1f392b0c78d (62500 series) | f1f392b0c78d (62500 series) | да |
+| `nested_aggregate` | ca3d163bab05 (1 series) | ca3d163bab05 (1 series) | ca3d163bab05 (1 series) | да |
+| `offset` | d5542cb672bf (62500 series) | d5542cb672bf (62500 series) | d5542cb672bf (62500 series) | да |
+| `or_fallback` | a712401a23e5 (62500 series) | a712401a23e5 (62500 series) | a712401a23e5 (62500 series) | да |
+| `quantile_over_time` | f1f392b0c78d (62500 series) | f1f392b0c78d (62500 series) | f1f392b0c78d (62500 series) | да |
+| `range_gauge` | d5542cb672bf (62500 series) | d5542cb672bf (62500 series) | d5542cb672bf (62500 series) | да |
+| `range_quantile` | 8e52194734df (62500 series) | 4f0d1e3a91e8 (62500 series) | 4f0d1e3a91e8 (62500 series) | нет |
+| `range_subquery` | 82623d225556 (62500 series) | 82623d225556 (62500 series) | 82623d225556 (62500 series) | да |
+| `range_sum_rate` | 8dcd40399f41 (100 series) | d73a595a3678 (100 series) | d73a595a3678 (100 series) | нет |
+| `rate` | 559e24dc9a48 (62500 series) | 559e24dc9a48 (62500 series) | 559e24dc9a48 (62500 series) | да |
+| `rate_histogram` | 559e24dc9a48 (62500 series) | 559e24dc9a48 (62500 series) | 559e24dc9a48 (62500 series) | да |
+| `recording_rule_shape` | eb8b58afb326 (1 series) | 8476e35ab60f (1 series) | 8476e35ab60f (1 series) | нет |
+| `regex_name` | fd6cd5bf0d07 (187500 series) | fd6cd5bf0d07 (187500 series) | fd6cd5bf0d07 (187500 series) | да |
+| `selector` | a712401a23e5 (62500 series) | a712401a23e5 (62500 series) | a712401a23e5 (62500 series) | да |
+| `selector_labels` | b5f636cb8557 (3125 series) | b5f636cb8557 (3125 series) | b5f636cb8557 (3125 series) | да |
+| `sort_desc` | 4f6b6c188f7f (100 series) | 4f6b6c188f7f (100 series) | 4f6b6c188f7f (100 series) | да |
+| `stddev` | 4f6b6c188f7f (100 series) | 4f6b6c188f7f (100 series) | 4f6b6c188f7f (100 series) | да |
+| `sum` | ca3d163bab05 (1 series) | ca3d163bab05 (1 series) | ca3d163bab05 (1 series) | да |
+| `sum_by_namespace` | 4f6b6c188f7f (100 series) | 4f6b6c188f7f (100 series) | 4f6b6c188f7f (100 series) | да |
+| `topk` | 77b447784c27 (20 series) | 77b447784c27 (20 series) | 77b447784c27 (20 series) | да |
+| `vector_matching` | f1f392b0c78d (62500 series) | f1f392b0c78d (62500 series) | f1f392b0c78d (62500 series) | да |
 
-33 queries identical, 5 differ.
+Совпадают 33 запросов, различаются 5.
 
-## Reproduce
+## Как воспроизвести
 
 ```sh
-export BENCH_NODE=<node>
+export BENCH_NODE=<узел>
 RUN_ID=20261008T170616Z scripts/node-overlay.sh
 scripts/harness.sh
 RUN_ID=20261008T170616Z scripts/run.sh
@@ -331,4 +331,4 @@ go run ./cmd/report -root results -run 20261008T170616Z
 scripts/teardown.sh --yes
 ```
 
-See METHODOLOGY.md for the fairness rules and the known threats to validity.
+Правила честного сравнения и то, что может исказить результат, описаны в METHODOLOGY.ru.md.

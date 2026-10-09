@@ -10,6 +10,7 @@ import (
 
 type metric struct {
 	title  string
+	arg    int
 	format func(float64) string
 	values map[string][]float64
 }
@@ -24,7 +25,7 @@ func (m *metric) add(engine string, v float64) {
 	}
 }
 
-func Aggregate(root string, runIDs []string) ([]byte, error) {
+func Aggregate(root string, runIDs []string, lang string) ([]byte, error) {
 	var (
 		rss  = newMetric("RSS at the last step", preciseBytes)
 		ws   = newMetric("Working set at the last step", preciseBytes)
@@ -50,7 +51,8 @@ func Aggregate(root string, runIDs []string) ([]byte, error) {
 			}
 			for _, q := range b.QueriesFor(engine) {
 				if lat[q.Concurrency] == nil {
-					lat[q.Concurrency] = newMetric(fmt.Sprintf("Query geomean p50, concurrency %d", q.Concurrency), ms)
+					lat[q.Concurrency] = newMetric("Query geomean p50, concurrency %d", ms)
+					lat[q.Concurrency].arg = q.Concurrency
 				}
 				lat[q.Concurrency].add(engine, geomeanLatency(q, func(m results.QueryMetric) float64 { return m.Latency.P50MS }))
 			}
@@ -58,8 +60,9 @@ func Aggregate(root string, runIDs []string) ([]byte, error) {
 	}
 
 	var sb strings.Builder
-	fmt.Fprintf(&sb, "# Aggregate of %d runs\n\n", len(runIDs))
-	sb.WriteString("Each cell is the median over runs with the minimum and maximum, and the spread as the share of the median.\n\n")
+	sb.WriteString(switcher(lang, "AGGREGATE"))
+	fmt.Fprintf(&sb, translate(lang, "# Aggregate of %d runs\n\n"), len(runIDs))
+	sb.WriteString(translate(lang, "Each cell is the median over runs with the minimum and maximum, and the spread as the share of the median.\n\n"))
 	all := []*metric{rss, ws, cpu, disk}
 	var levels []int
 	for c := range lat {
@@ -70,13 +73,17 @@ func Aggregate(root string, runIDs []string) ([]byte, error) {
 		all = append(all, lat[c])
 	}
 	for _, m := range all {
-		m.write(&sb)
+		m.write(&sb, lang)
 	}
 	return []byte(sb.String()), nil
 }
 
-func (m *metric) write(sb *strings.Builder) {
-	fmt.Fprintf(sb, "## %s\n\n| engine | runs | median | min to max | spread |\n|---|---|---|---|---|\n", m.title)
+func (m *metric) write(sb *strings.Builder, lang string) {
+	title := translate(lang, m.title)
+	if strings.Contains(title, "%d") {
+		title = fmt.Sprintf(title, m.arg)
+	}
+	fmt.Fprintf(sb, "## %s\n\n%s", title, translate(lang, "| engine | runs | median | min to max | spread |\n|---|---|---|---|---|\n"))
 	for _, engine := range engineOrder {
 		v := m.values[engine]
 		if len(v) == 0 {
@@ -85,8 +92,8 @@ func (m *metric) write(sb *strings.Builder) {
 		sort.Float64s(v)
 		med := median(v)
 		lo, hi := v[0], v[len(v)-1]
-		fmt.Fprintf(sb, "| %s | %d | %s | %s to %s | %.1f%% |\n",
-			styleOf(engine).title, len(v), m.format(med), m.format(lo), m.format(hi), (hi-lo)/med*100)
+		fmt.Fprintf(sb, "| %s | %d | %s | %s %s %s | %.1f%% |\n",
+			styleOf(engine).title, len(v), m.format(med), m.format(lo), translate(lang, "to"), m.format(hi), (hi-lo)/med*100)
 	}
 	sb.WriteString("\n")
 }

@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/xdearboy/prompp-vs-prometheus/internal/report"
 )
@@ -49,6 +50,11 @@ func main() {
 	if err := report.WriteFile(markdownPath, bundle.Markdown()); err != nil {
 		log.Fatalf("markdown: %v", err)
 	}
+	bundle.Lang = "ru"
+	if err := report.WriteFile(strings.TrimSuffix(markdownPath, ".md")+".ru.md", bundle.Markdown()); err != nil {
+		log.Fatalf("markdown: %v", err)
+	}
+	bundle.Lang = ""
 	if !*quiet {
 		fmt.Print(string(bundle.Markdown()))
 	}

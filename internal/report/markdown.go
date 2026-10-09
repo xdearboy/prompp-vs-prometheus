@@ -12,6 +12,7 @@ import (
 
 func (b *Bundle) Markdown() []byte {
 	var sb strings.Builder
+	sb.WriteString(switcher(b.Lang, "REPORT"))
 	b.writeHeader(&sb)
 	b.writeIngest(&sb)
 	b.writeQuery(&sb)
@@ -21,54 +22,54 @@ func (b *Bundle) Markdown() []byte {
 }
 
 func (b *Bundle) writeHeader(sb *strings.Builder) {
-	sb.WriteString("# Prom++ versus Prometheus\n\n")
-	sb.WriteString("Generated from the raw artifacts in this directory. Every number below comes from a file in the run directory, nothing is typed in by hand.\n\n")
+	sb.WriteString(b.t("# Prom++ versus Prometheus\n\n"))
+	sb.WriteString(b.t("Generated from the raw artifacts in this directory. Every number below comes from a file in the run directory, nothing is typed in by hand.\n\n"))
 
 	if b.Meta.RunID != "" {
-		fmt.Fprintf(sb, "Run id: `%s`\n\n", b.Meta.RunID)
+		fmt.Fprintf(sb, b.t("Run id: `%s`\n\n"), b.Meta.RunID)
 	}
 	node := b.Meta.Node
-	fmt.Fprintf(sb, "## Environment\n\n")
-	sb.WriteString("| item | value |\n|---|---|\n")
-	writeRow(sb, "node", node.Name)
-	writeRow(sb, "cpu", node.CPUModel)
-	writeRow(sb, "cores", fmt.Sprint(node.CPUCores))
-	writeRow(sb, "memory", Bytes(uint64(node.MemTotalBytes)))
-	writeRow(sb, "kernel", node.KernelVersion)
-	writeRow(sb, "os", node.OSImage)
-	writeRow(sb, "arch", node.Arch)
+	sb.WriteString(b.t("## Environment\n\n"))
+	sb.WriteString(b.t("| item | value |\n|---|---|\n"))
+	writeRow(sb, b.t("node"), node.Name)
+	writeRow(sb, b.t("cpu"), node.CPUModel)
+	writeRow(sb, b.t("cores"), fmt.Sprint(node.CPUCores))
+	writeRow(sb, b.t("memory"), Bytes(uint64(node.MemTotalBytes)))
+	writeRow(sb, b.t("kernel"), node.KernelVersion)
+	writeRow(sb, b.t("os"), node.OSImage)
+	writeRow(sb, b.t("arch"), node.Arch)
 	if node.FSCapacityBytes > 0 {
-		writeRow(sb, "data filesystem", fmt.Sprintf("%s free of %s",
+		writeRow(sb, b.t("data filesystem"), fmt.Sprintf(b.t("%s free of %s"),
 			Bytes(uint64(node.FSAvailableBytes)), Bytes(uint64(node.FSCapacityBytes))))
 	}
 	for _, key := range sortedStringKeys(b.Meta.Extra) {
 		writeRow(sb, key, b.Meta.Extra[key])
 	}
 	if b.Meta.GitCommit != "" {
-		writeRow(sb, "harness commit", b.Meta.GitCommit)
+		writeRow(sb, b.t("harness commit"), b.Meta.GitCommit)
 	}
 	if b.Meta.Harness != "" {
-		writeRow(sb, "harness", b.Meta.Harness)
+		writeRow(sb, b.t("harness"), b.Meta.Harness)
 	}
 	if len(b.Meta.Engines) > 0 {
-		sb.WriteString("\n## Engines\n\n")
-		sb.WriteString("Declared settings come from the manifests, observed ones from the engine's own runtimeinfo and flags endpoints during the run.\n\n")
-		sb.WriteString("| engine | image | cpu limit | memory limit | env | observed GOMEMLIMIT | observed GOMAXPROCS | WAL compression | args | notes |\n|---|---|---|---|---|---|---|---|---|---|\n")
+		sb.WriteString(b.t("\n## Engines\n\n"))
+		sb.WriteString(b.t("Declared settings come from the manifests, observed ones from the engine's own runtimeinfo and flags endpoints during the run.\n\n"))
+		sb.WriteString(b.t("| engine | image | cpu limit | memory limit | env | observed GOMEMLIMIT | observed GOMAXPROCS | WAL compression | args | notes |\n|---|---|---|---|---|---|---|---|---|---|\n"))
 		for _, e := range b.Meta.Engines {
 			rt := b.Runtime(e.Name)
-			fmt.Fprintf(sb, "| `%s` | `%s` | %s | %s | `%s` | %s | %s | %s | `%s` | %s |\n",
+			fmt.Fprintf(sb, b.t("| `%s` | `%s` | %s | %s | `%s` | %s | %s | %s | `%s` | %s |\n"),
 				e.Name, e.Image, Milli(e.CPUMilli), Bytes(uint64(e.MemBytes)),
 				orDash(strings.Join(e.Env, " ")), memLimit(rt.GOMEMLimit), orDash(rt.GOMAXPROCS),
 				orDash(rt.WALCompression), strings.Join(e.Args, " "), e.Notes)
 		}
 	}
 	if len(b.Meta.Notes) > 0 {
-		sb.WriteString("\n### Notes\n\n")
+		sb.WriteString(b.t("\n### Notes\n\n"))
 		for _, n := range b.Meta.Notes {
-			fmt.Fprintf(sb, "- %s\n", n)
+			fmt.Fprintf(sb, b.t("- %s\n"), n)
 		}
 	}
-	sb.WriteString("\n")
+	sb.WriteString(b.t("\n"))
 }
 
 func (b *Bundle) writeIngest(sb *strings.Builder) {
@@ -76,53 +77,53 @@ func (b *Bundle) writeIngest(sb *strings.Builder) {
 		return
 	}
 	engines := b.Engines()
-	sb.WriteString("## Ingest and head memory\n\n")
-	sb.WriteString("![compared with Prometheus 3.15.0](charts/summary.svg)\n\n")
-	sb.WriteString("![resident memory by series](charts/rss-by-series.svg)\n\n")
-	sb.WriteString("![cpu cores by series](charts/cpu-by-series.svg)\n\n")
-	sb.WriteString("![resident memory over time](charts/rss-timeline.svg)\n\n")
-	sb.WriteString("![data directory by series](charts/disk-by-series.svg)\n\n")
+	sb.WriteString(b.t("## Ingest and head memory\n\n"))
+	sb.WriteString(b.t("![compared with Prometheus 3.15.0](charts/summary.svg)\n\n"))
+	sb.WriteString(b.t("![resident memory by series](charts/rss-by-series.svg)\n\n"))
+	sb.WriteString(b.t("![cpu cores by series](charts/cpu-by-series.svg)\n\n"))
+	sb.WriteString(b.t("![resident memory over time](charts/rss-timeline.svg)\n\n"))
+	sb.WriteString(b.t("![data directory by series](charts/disk-by-series.svg)\n\n"))
 
 	for _, e := range engines {
 		res := b.Ingest(e)
 		if res == nil {
 			continue
 		}
-		fmt.Fprintf(sb, "### %s\n\n", e)
-		fmt.Fprintf(sb, "Interval %gs, batch %d series, %d workers, %d samples sent, %d failed.\n\n",
+		fmt.Fprintf(sb, b.t("### %s\n\n"), e)
+		fmt.Fprintf(sb, b.t("Interval %gs, batch %d series, %d workers, %d samples sent, %d failed.\n\n"),
 			res.IntervalSeconds, res.BatchSeries, res.Workers, res.TotalSamples(), res.FailedSamples())
-		sb.WriteString("| active series | samples/s | head series | head chunks | RSS avg | RSS p95 | RSS max | working set max | cpu cores avg | cpu cores max | data dir | WAL | rss/series | disk/series |\n")
-		sb.WriteString("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|\n")
+		sb.WriteString(b.t("| active series | samples/s | head series | head chunks | RSS avg | RSS p95 | RSS max | working set max | cpu cores avg | cpu cores max | data dir | WAL | rss/series | disk/series |\n"))
+		sb.WriteString(b.t("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|\n"))
 		for _, step := range res.Steps {
 			r := orZero(step.Resources)
-			fmt.Fprintf(sb, "| %d | %.0f | %d | %d | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |\n",
+			fmt.Fprintf(sb, b.t("| %d | %.0f | %d | %d | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |\n"),
 				step.Series, step.AchievedSamplesPerSec, step.Head.NumSeries, step.Head.NumChunks,
 				dashBytes(r.RSSSelfAvgBytes), dashBytes(r.RSSSelfP95Bytes), dashBytes(r.RSSSelfMaxBytes),
 				dashBytes(r.WorkingSetMaxBytes), dashCores(r.CPUCoresAvg), dashCores(r.CPUCoresMax),
 				dashBytes(float64(r.DataDirBytes)), dashBytes(float64(r.WALBytes)), ratioOrDash(r), diskRatioOrDash(r))
 			if len(step.ErrorSamples) > 0 {
-				fmt.Fprintf(sb, "\nStep %d errors: `%s`\n", step.Index, strings.Join(step.ErrorSamples, "; "))
+				fmt.Fprintf(sb, b.t("\nStep %d errors: `%s`\n"), step.Index, strings.Join(step.ErrorSamples, "; "))
 			}
 		}
-		sb.WriteString("\n")
-		sb.WriteString("| active series | elapsed / planned | write request p50 | p99 | 2xx | 4xx | 5xx | client errors |\n")
-		sb.WriteString("|---|---|---|---|---|---|---|---|\n")
+		sb.WriteString(b.t("\n"))
+		sb.WriteString(b.t("| active series | elapsed / planned | write request p50 | p99 | 2xx | 4xx | 5xx | client errors |\n"))
+		sb.WriteString(b.t("|---|---|---|---|---|---|---|---|\n"))
 		for _, step := range res.Steps {
 			elapsed := fmt.Sprintf("%.0f s / %.0f s", step.ElapsedSeconds, step.DurationSeconds)
 			if step.Overran() {
 				elapsed += ", overran"
 			}
-			fmt.Fprintf(sb, "| %d | %s | %s | %s | %d | %d | %d | %d |\n",
+			fmt.Fprintf(sb, b.t("| %d | %s | %s | %s | %d | %d | %d | %d |\n"),
 				step.Series, elapsed, ms(step.RequestLatency.P50MS), ms(step.RequestLatency.P99MS),
 				step.RequestsOK, step.HTTP4xx, step.HTTP5xx, step.ClientErrors)
 		}
-		sb.WriteString("\n")
+		sb.WriteString(b.t("\n"))
 	}
 
-	sb.WriteString("### Comparison\n\n")
-	sb.WriteString("Lower is better for every memory and cpu column. RSS is the engine's own process_resident_memory_bytes, working set is the cgroup figure the kubelet evicts and OOM kills on.\n\n")
+	sb.WriteString(b.t("### Comparison\n\n"))
+	sb.WriteString(b.t("Lower is better for every memory and cpu column. RSS is the engine's own process_resident_memory_bytes, working set is the cgroup figure the kubelet evicts and OOM kills on.\n\n"))
 	seriesSet := b.seriesLevels()
-	sb.WriteString("| active series | engine | RSS avg | bytes/series | working set max | cpu cores avg | data dir | samples/s |\n|---|---|---|---|---|---|---|---|\n")
+	sb.WriteString(b.t("| active series | engine | RSS avg | bytes/series | working set max | cpu cores avg | data dir | samples/s |\n|---|---|---|---|---|---|---|---|\n"))
 	for _, series := range seriesSet {
 		for _, e := range engines {
 			step := b.step(e, series)
@@ -130,14 +131,14 @@ func (b *Bundle) writeIngest(sb *strings.Builder) {
 				continue
 			}
 			r := orZero(step.Resources)
-			fmt.Fprintf(sb, "| %d | `%s` | %s | %s | %s | %s | %s | %.0f |\n",
+			fmt.Fprintf(sb, b.t("| %d | `%s` | %s | %s | %s | %s | %s | %.0f |\n"),
 				series, e, dashBytes(r.RSSSelfAvgBytes), ratioOrDash(r), dashBytes(r.WorkingSetMaxBytes),
 				dashCores(r.CPUCoresAvg), dashBytes(float64(r.DataDirBytes)), step.AchievedSamplesPerSec)
 		}
 	}
-	sb.WriteString("\n")
+	sb.WriteString(b.t("\n"))
 	if leader := b.memoryLeader(seriesSet); leader.engine != "" {
-		fmt.Fprintf(sb, "At the largest step, `%s` needs the least resident memory per series: %s\n\n", leader.engine, leader.text)
+		fmt.Fprintf(sb, b.t("At the largest step, `%s` needs the least resident memory per series: %s\n\n"), leader.engine, leader.text)
 	}
 }
 
@@ -146,29 +147,29 @@ func (b *Bundle) writeQuery(sb *strings.Builder) {
 		return
 	}
 	engines := b.Engines()
-	sb.WriteString("## Query latency\n\n")
-	sb.WriteString("Each query runs on its own: one unmeasured warmup request, then the given number of workers repeat it until the time budget is spent and a minimum number of requests finished. ")
-	sb.WriteString("`n` is the number of measured requests. With a small `n` the p99 is close to the maximum, so the median is the figure to compare. ")
-	sb.WriteString("The geometric mean weighs every query equally, so a few multi second range queries do not drown the rest.\n\n")
-	sb.WriteString("![latency under concurrency](charts/latency-scaling.svg)\n\n")
+	sb.WriteString(b.t("## Query latency\n\n"))
+	sb.WriteString(b.t("Each query runs on its own: one unmeasured warmup request, then the given number of workers repeat it until the time budget is spent and a minimum number of requests finished. "))
+	sb.WriteString(b.t("`n` is the number of measured requests. With a small `n` the p99 is close to the maximum, so the median is the figure to compare. "))
+	sb.WriteString(b.t("The geometric mean weighs every query equally, so a few multi second range queries do not drown the rest.\n\n"))
+	sb.WriteString(b.t("![latency under concurrency](charts/latency-scaling.svg)\n\n"))
 	for _, concurrency := range b.concurrencyLevels() {
-		fmt.Fprintf(sb, "### Concurrency %d\n\n", concurrency)
-		fmt.Fprintf(sb, "![median query latency, concurrency %d](charts/%s)\n\n", concurrency, queryChart(concurrency))
-		sb.WriteString("| engine | suite | queries | requests | errors | geomean p50 | geomean p99 | slowest query p50 | cpu cores avg | working set max |\n")
-		sb.WriteString("|---|---|---|---|---|---|---|---|---|---|\n")
+		fmt.Fprintf(sb, b.t("### Concurrency %d\n\n"), concurrency)
+		fmt.Fprintf(sb, b.t("![median query latency, concurrency %d](charts/%s)\n\n"), concurrency, queryChart(concurrency))
+		sb.WriteString(b.t("| engine | suite | queries | requests | errors | geomean p50 | geomean p99 | slowest query p50 | cpu cores avg | working set max |\n"))
+		sb.WriteString(b.t("|---|---|---|---|---|---|---|---|---|---|\n"))
 		for _, e := range engines {
 			for _, res := range b.QueriesFor(e) {
 				if res.Concurrency != concurrency {
 					continue
 				}
-				fmt.Fprintf(sb, "| `%s` | %s | %d | %d | %d | %s | %s | %s | %s | %s |\n",
+				fmt.Fprintf(sb, b.t("| `%s` | %s | %d | %d | %d | %s | %s | %s | %s | %s |\n"),
 					e, res.Suite, len(res.Queries), res.TotalRequests(), res.TotalErrors(),
 					msOrDash(geomeanLatency(res, func(q results.QueryMetric) float64 { return q.Latency.P50MS })),
 					msOrDash(geomeanLatency(res, func(q results.QueryMetric) float64 { return q.Latency.P99MS })),
 					slowest(res), queryCores(res), queryWorkingSet(res))
 			}
 		}
-		sb.WriteString("\n")
+		sb.WriteString(b.t("\n"))
 		b.writeQueryTable(sb, engines, concurrency)
 	}
 }
@@ -206,16 +207,16 @@ func (b *Bundle) writeQueryTable(sb *strings.Builder, engines []string, concurre
 		if fastest != "" {
 			winner = "`" + fastest + "`"
 		}
-		fmt.Fprintf(sb, "%s %s |%s %s |\n", line, orDash(qtype), cells, winner)
+		fmt.Fprintf(sb, b.t("%s %s |%s %s |\n"), line, orDash(qtype), cells, winner)
 	}
-	sb.WriteString("\n")
+	sb.WriteString(b.t("\n"))
 }
 
 func (b *Bundle) writeCorrectness(sb *strings.Builder) {
 	if len(b.Dumps) < 2 {
 		return
 	}
-	sb.WriteString("## Result equality\n\n")
+	sb.WriteString(b.t("## Result equality\n\n"))
 	engines := b.Engines()
 	names := map[string]bool{}
 	for _, name := range b.Engines() {
@@ -231,17 +232,17 @@ func (b *Bundle) writeCorrectness(sb *strings.Builder) {
 	}
 	sort.Strings(sorted)
 
-	sb.WriteString("Every engine received the same samples and every query is evaluated at the same pinned timestamp, so a result that differs points at a semantic difference between engines or at lost data. Each cell is the sha256 of the canonicalised result.\n\n")
-	sb.WriteString("A differing row means the engines disagree on the same data at the same timestamp. All of them are rate or `_over_time` range queries. Prometheus 3.0 made range selectors left-open, a sample exactly on the window start is no longer included, and the Prom++ 0.8.15 PromQL engine already drops it (`promql/engine.go`, `floats[drop].T <= mint`), unlike 2.55.1 (`< mint`). The synthetic samples sit on the window edge, so 2.55.1 sees one extra sample.\n\n")
-	sb.WriteString("| query |")
+	sb.WriteString(b.t("Every engine received the same samples and every query is evaluated at the same pinned timestamp, so a result that differs points at a semantic difference between engines or at lost data. Each cell is the sha256 of the canonicalised result.\n\n"))
+	sb.WriteString(b.t("A differing row means the engines disagree on the same data at the same timestamp. All of them are rate or `_over_time` range queries. Prometheus 3.0 made range selectors left-open, a sample exactly on the window start is no longer included, and the Prom++ 0.8.15 PromQL engine already drops it (`promql/engine.go`, `floats[drop].T <= mint`), unlike 2.55.1 (`< mint`). The synthetic samples sit on the window edge, so 2.55.1 sees one extra sample.\n\n"))
+	sb.WriteString(b.t("| query |"))
 	for _, e := range engines {
 		sb.WriteString(" `" + e + "` |")
 	}
-	sb.WriteString(" identical |\n|---|")
+	sb.WriteString(b.t(" identical |\n|---|"))
 	for range engines {
-		sb.WriteString("---|")
+		sb.WriteString(b.t("---|"))
 	}
-	sb.WriteString("---|\n")
+	sb.WriteString(b.t("---|\n"))
 	identical, differing := 0, 0
 	for _, name := range sorted {
 		line := "| `" + name + "` |"
@@ -265,7 +266,7 @@ func (b *Bundle) writeCorrectness(sb *strings.Builder) {
 			}
 			switch {
 			case entry.Error != "":
-				line += " error |"
+				line += b.t(" error |")
 				same = false
 			case entry.SHA256 != baseEntry.SHA256:
 				line += fmt.Sprintf(" %s (%d series) |", short(entry.SHA256), entry.Series)
@@ -276,26 +277,26 @@ func (b *Bundle) writeCorrectness(sb *strings.Builder) {
 		}
 		if same {
 			identical++
-			line += " yes |\n"
+			line += b.t(" yes |\n")
 		} else {
 			differing++
-			line += " no |\n"
+			line += b.t(" no |\n")
 		}
 		fmt.Fprint(sb, line)
 	}
-	fmt.Fprintf(sb, "\n%d queries identical, %d differ.\n\n", identical, differing)
+	fmt.Fprintf(sb, b.t("\n%d queries identical, %d differ.\n\n"), identical, differing)
 }
 
 func (b *Bundle) writeReproduce(sb *strings.Builder) {
-	sb.WriteString("## Reproduce\n\n")
-	sb.WriteString("```sh\n")
-	fmt.Fprintf(sb, "export BENCH_NODE=<node>\n")
-	fmt.Fprintf(sb, "RUN_ID=%s scripts/node-overlay.sh\n", b.RunID)
-	sb.WriteString("scripts/harness.sh\n")
-	fmt.Fprintf(sb, "RUN_ID=%s scripts/run.sh\n", b.RunID)
-	fmt.Fprintf(sb, "go run ./cmd/report -root results -run %s\n", b.RunID)
-	sb.WriteString("scripts/teardown.sh --yes\n```\n\n")
-	sb.WriteString("See METHODOLOGY.md for the fairness rules and the known threats to validity.\n")
+	sb.WriteString(b.t("## Reproduce\n\n"))
+	sb.WriteString(b.t("```sh\n"))
+	sb.WriteString(b.t("export BENCH_NODE=<node>\n"))
+	fmt.Fprintf(sb, b.t("RUN_ID=%s scripts/node-overlay.sh\n"), b.RunID)
+	sb.WriteString(b.t("scripts/harness.sh\n"))
+	fmt.Fprintf(sb, b.t("RUN_ID=%s scripts/run.sh\n"), b.RunID)
+	fmt.Fprintf(sb, b.t("go run ./cmd/report -root results -run %s\n"), b.RunID)
+	sb.WriteString(b.t("scripts/teardown.sh --yes\n```\n\n"))
+	sb.WriteString(b.t("See METHODOLOGY.md for the fairness rules and the known threats to validity.\n"))
 }
 
 type leaderInfo struct {
