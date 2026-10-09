@@ -55,6 +55,9 @@ and synthetic data are real limits.
 | `prom-3150` | `quay.io/prometheus/prometheus:v3.15.0` | current upstream |
 | `prom-2551` | `quay.io/prometheus/prometheus:v2.55.1` | closed range selectors |
 
+The head is the part of the TSDB that lives in memory: fresh samples stay there until they
+are flushed to disk as a block. It is what drives memory use while writing.
+
 All three get the same flags and the same runtime settings through the environment:
 `GOMEMLIMIT=5529MiB` (90% of the 6 GiB limit) and `GOMAXPROCS=2`. Without them the
 engines would not be comparable: Prom++ 0.8.15 and Prometheus 2.55.1 keep
