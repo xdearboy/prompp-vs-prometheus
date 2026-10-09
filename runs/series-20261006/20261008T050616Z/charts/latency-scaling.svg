@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="420" viewBox="0 0 980 420" font-family="ui-sans-serif,system-ui,-apple-system,sans-serif">
+<rect width="100%" height="100%" fill="#ffffff" rx="10"/>
+<text x="28" y="34" font-size="17" font-weight="700" fill="#0f172a">Latency under concurrency</text>
+<text x="28" y="54" font-size="12" fill="#64748b">geometric mean of the median over all queries, lower is better</text>
+<rect x="817.8" y="24" width="11" height="11" rx="3" fill="#059669"/><text x="833.8" y="34" font-size="12" font-weight="600" fill="#334155">Prometheus 2.55.1</text>
+<rect x="679.6" y="24" width="11" height="11" rx="3" fill="#ea580c"/><text x="695.6" y="34" font-size="12" font-weight="600" fill="#334155">Prometheus 3.15.0</text>
+<rect x="567.8" y="24" width="11" height="11" rx="3" fill="#2563eb"/><text x="583.8" y="34" font-size="12" font-weight="600" fill="#334155">Prom++ 0.8.15</text>
+<line x1="78" y1="368.0" x2="870.0" y2="368.0" stroke="#e2e8f0"/><text x="68" y="372.0" font-size="11" fill="#64748b" text-anchor="end">0</text>
+<line x1="78" y1="297.0" x2="870.0" y2="297.0" stroke="#e2e8f0"/><text x="68" y="301.0" font-size="11" fill="#64748b" text-anchor="end">1 s</text>
+<line x1="78" y1="226.0" x2="870.0" y2="226.0" stroke="#e2e8f0"/><text x="68" y="230.0" font-size="11" fill="#64748b" text-anchor="end">2 s</text>
+<line x1="78" y1="155.0" x2="870.0" y2="155.0" stroke="#e2e8f0"/><text x="68" y="159.0" font-size="11" fill="#64748b" text-anchor="end">3 s</text>
+<line x1="78" y1="84.0" x2="870.0" y2="84.0" stroke="#e2e8f0"/><text x="68" y="88.0" font-size="11" fill="#64748b" text-anchor="end">4 s</text>
+<text x="210.0" y="394" font-size="13" font-weight="600" fill="#1e293b" text-anchor="middle">1 clients</text>
+<text x="474.0" y="394" font-size="13" font-weight="600" fill="#1e293b" text-anchor="middle">4 clients</text>
+<text x="738.0" y="394" font-size="13" font-weight="600" fill="#1e293b" text-anchor="middle">16 clients</text>
+<polyline fill="none" stroke="#2563eb" stroke-width="2.4" stroke-linejoin="round" points="210.0,347.0 474.0,319.5 738.0,188.2"/>
+<circle cx="210.0" cy="347.0" r="4" fill="#2563eb"/>
+<circle cx="474.0" cy="319.5" r="4" fill="#2563eb"/>
+<circle cx="738.0" cy="188.2" r="4" fill="#2563eb"/>
+<polyline fill="none" stroke="#ea580c" stroke-width="2.4" stroke-linejoin="round" points="210.0,343.3 474.0,308.9 738.0,132.5"/>
+<circle cx="210.0" cy="343.3" r="4" fill="#ea580c"/>
+<circle cx="474.0" cy="308.9" r="4" fill="#ea580c"/>
+<circle cx="738.0" cy="132.5" r="4" fill="#ea580c"/>
+<polyline fill="none" stroke="#059669" stroke-width="2.4" stroke-linejoin="round" points="210.0,343.3 474.0,309.0 738.0,122.2"/>
+<circle cx="210.0" cy="343.3" r="4" fill="#059669"/>
+<circle cx="474.0" cy="309.0" r="4" fill="#059669"/>
+<circle cx="738.0" cy="122.2" r="4" fill="#059669"/>
+<text x="747.0" y="126.2" font-size="11" font-weight="600" fill="#059669">3.5 s</text>
+<text x="747.0" y="140.2" font-size="11" font-weight="600" fill="#ea580c">3.3 s</text>
+<text x="747.0" y="192.2" font-size="11" font-weight="600" fill="#2563eb">2.5 s</text>
+</svg>

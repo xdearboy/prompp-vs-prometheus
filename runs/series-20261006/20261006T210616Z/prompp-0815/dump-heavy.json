@@ -1,0 +1,352 @@
+{
+  "run_id": "20261006T210616Z",
+  "engine": "prompp-0815",
+  "target": "http://prompp-0815:9090",
+  "suite": "heavy",
+  "epoch_ms": 0,
+  "generated_at": "2026-10-06T21:53:12.470375978Z",
+  "entries": [
+    {
+      "name": "selector",
+      "expr": "bench_cpu_cores",
+      "type": "instant",
+      "series": 62500,
+      "points": 0,
+      "sha256": "a712401a23e5c84e1ff4a0169328963b65afab7f159b376442b4683acfa447d5",
+      "elapsed_seconds": 0.416562855
+    },
+    {
+      "name": "selector_labels",
+      "expr": "bench_memory_bytes{namespace=~\"ns-0[1-5]\", job=\"bench\"}",
+      "type": "instant",
+      "series": 3125,
+      "points": 0,
+      "sha256": "b5f636cb8557c70054ac2009b56bf4859e389bfb1ffe1fe872370a4a26122ab2",
+      "elapsed_seconds": 0.016505325
+    },
+    {
+      "name": "matchers_numeric",
+      "expr": "bench_queue_length \u003e 1.5",
+      "type": "instant",
+      "series": 38487,
+      "points": 0,
+      "sha256": "bf8394774b5fb6c89d807379275c8fad796e92f6e3f0ca56272678cd631e1f00",
+      "elapsed_seconds": 0.302851301
+    },
+    {
+      "name": "absent",
+      "expr": "absent(bench_missing_metric)",
+      "type": "instant",
+      "series": 1,
+      "points": 0,
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "elapsed_seconds": 0.000998078
+    },
+    {
+      "name": "regex_name",
+      "expr": "{__name__=~\"bench_http_.*\"}",
+      "type": "instant",
+      "series": 187500,
+      "points": 0,
+      "sha256": "fd6cd5bf0d07274e640ae93b0af44ef89862a6642306a345507c50043114f602",
+      "elapsed_seconds": 0.998789982
+    },
+    {
+      "name": "sum",
+      "expr": "sum(bench_cpu_cores)",
+      "type": "instant",
+      "series": 1,
+      "points": 0,
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "elapsed_seconds": 0.127198772
+    },
+    {
+      "name": "sum_by_namespace",
+      "expr": "sum by (namespace) (bench_cpu_cores)",
+      "type": "instant",
+      "series": 100,
+      "points": 0,
+      "sha256": "4f6b6c188f7f61ea204f836fc30ef867e72bac3467f86df4eedb82d156bb09c1",
+      "elapsed_seconds": 0.147764373
+    },
+    {
+      "name": "count_by_job",
+      "expr": "count by (job) (bench_cpu_cores)",
+      "type": "instant",
+      "series": 1,
+      "points": 0,
+      "sha256": "07c02c1348ea61876fbe9bec4ae9264b7aeafe3e96b50329a0e93c4c493b7c2d",
+      "elapsed_seconds": 0.137001614
+    },
+    {
+      "name": "avg_over_pods",
+      "expr": "avg by (namespace) (bench_memory_bytes)",
+      "type": "instant",
+      "series": 100,
+      "points": 0,
+      "sha256": "4f6b6c188f7f61ea204f836fc30ef867e72bac3467f86df4eedb82d156bb09c1",
+      "elapsed_seconds": 0.143953351
+    },
+    {
+      "name": "topk",
+      "expr": "topk(20, bench_cpu_cores)",
+      "type": "instant",
+      "series": 20,
+      "points": 0,
+      "sha256": "77b447784c27eb276ff1a37678f336724fcbf15bb2eb8e6ac5329abc2aeb9b64",
+      "elapsed_seconds": 0.149626967
+    },
+    {
+      "name": "bottomk",
+      "expr": "bottomk(5, bench_cpu_cores)",
+      "type": "instant",
+      "series": 5,
+      "points": 0,
+      "sha256": "75dc8cd9959310386f14d5a1fca84188745a54f20bf637aa422030dd352ca94e",
+      "elapsed_seconds": 0.145222315
+    },
+    {
+      "name": "count_values",
+      "expr": "count_values(\"status\", bench_container_ready)",
+      "type": "instant",
+      "series": 62500,
+      "points": 0,
+      "sha256": "e792d90cc0a2576afcde961a6bc03b9bd46580e92f32785b55e067d19e1ec1b5",
+      "elapsed_seconds": 0.357000062
+    },
+    {
+      "name": "stddev",
+      "expr": "stddev by (namespace) (bench_memory_bytes)",
+      "type": "instant",
+      "series": 100,
+      "points": 0,
+      "sha256": "4f6b6c188f7f61ea204f836fc30ef867e72bac3467f86df4eedb82d156bb09c1",
+      "elapsed_seconds": 0.117484063
+    },
+    {
+      "name": "rate",
+      "expr": "rate(bench_http_requests_total[5m])",
+      "type": "instant",
+      "series": 62500,
+      "points": 0,
+      "sha256": "559e24dc9a482279215ae605fb11c4449120b4953d6ef53100136b6b8062af96",
+      "elapsed_seconds": 0.337821377
+    },
+    {
+      "name": "irate",
+      "expr": "irate(bench_http_requests_total[1m])",
+      "type": "instant",
+      "series": 62500,
+      "points": 0,
+      "sha256": "559e24dc9a482279215ae605fb11c4449120b4953d6ef53100136b6b8062af96",
+      "elapsed_seconds": 0.307653989
+    },
+    {
+      "name": "increase",
+      "expr": "increase(bench_http_requests_total[30m])",
+      "type": "instant",
+      "series": 62500,
+      "points": 0,
+      "sha256": "559e24dc9a482279215ae605fb11c4449120b4953d6ef53100136b6b8062af96",
+      "elapsed_seconds": 0.393480455
+    },
+    {
+      "name": "avg_over_time",
+      "expr": "avg_over_time(bench_cpu_cores[10m])",
+      "type": "instant",
+      "series": 62500,
+      "points": 0,
+      "sha256": "f1f392b0c78d006f958324fa11a05164e672a05ce58b4de7095c3327fe675c70",
+      "elapsed_seconds": 0.420386362
+    },
+    {
+      "name": "max_over_time",
+      "expr": "max_over_time(bench_cpu_cores[15m])",
+      "type": "instant",
+      "series": 62500,
+      "points": 0,
+      "sha256": "f1f392b0c78d006f958324fa11a05164e672a05ce58b4de7095c3327fe675c70",
+      "elapsed_seconds": 0.422203145
+    },
+    {
+      "name": "quantile_over_time",
+      "expr": "quantile_over_time(0.95, bench_cpu_cores[10m])",
+      "type": "instant",
+      "series": 62500,
+      "points": 0,
+      "sha256": "f1f392b0c78d006f958324fa11a05164e672a05ce58b4de7095c3327fe675c70",
+      "elapsed_seconds": 0.680167275
+    },
+    {
+      "name": "rate_histogram",
+      "expr": "rate(bench_http_request_duration_seconds_sum[5m]) / rate(bench_http_request_duration_seconds_count[5m])",
+      "type": "instant",
+      "series": 62500,
+      "points": 0,
+      "sha256": "559e24dc9a482279215ae605fb11c4449120b4953d6ef53100136b6b8062af96",
+      "elapsed_seconds": 0.678724128
+    },
+    {
+      "name": "join",
+      "expr": "sum by (namespace) (bench_http_requests_total) / on (namespace) sum by (namespace) (bench_memory_bytes)",
+      "type": "instant",
+      "series": 100,
+      "points": 0,
+      "sha256": "4f6b6c188f7f61ea204f836fc30ef867e72bac3467f86df4eedb82d156bb09c1",
+      "elapsed_seconds": 0.252408155
+    },
+    {
+      "name": "vector_matching",
+      "expr": "bench_cpu_cores * on (namespace) group_left() count by (namespace) (bench_queue_length)",
+      "type": "instant",
+      "series": 62500,
+      "points": 0,
+      "sha256": "f1f392b0c78d006f958324fa11a05164e672a05ce58b4de7095c3327fe675c70",
+      "elapsed_seconds": 0.603485415
+    },
+    {
+      "name": "binary_scalar",
+      "expr": "sum(bench_cpu_cores) / count(count by (namespace) (bench_cpu_cores))",
+      "type": "instant",
+      "series": 1,
+      "points": 0,
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "elapsed_seconds": 0.273601008
+    },
+    {
+      "name": "clamp",
+      "expr": "clamp_max(clamp_min(bench_memory_bytes, 0), 1e12)",
+      "type": "instant",
+      "series": 62500,
+      "points": 0,
+      "sha256": "f1f392b0c78d006f958324fa11a05164e672a05ce58b4de7095c3327fe675c70",
+      "elapsed_seconds": 0.436124981
+    },
+    {
+      "name": "label_replace",
+      "expr": "label_replace(bench_cpu_cores, \"tier\", \"front\", \"namespace\", \"ns-0.*\")",
+      "type": "instant",
+      "series": 62500,
+      "points": 0,
+      "sha256": "d3ae67deabaab5298f0599eb837e0a9c6008640b631fa53a177a8ef3706fc93d",
+      "elapsed_seconds": 0.35925687
+    },
+    {
+      "name": "range_gauge",
+      "expr": "bench_cpu_cores",
+      "type": "range",
+      "series": 62500,
+      "points": 1775000,
+      "sha256": "d5542cb672bf78d89da130a7f869f737bb2c330bb8a7493e0d0682e4a2fe5450",
+      "elapsed_seconds": 2.444510375
+    },
+    {
+      "name": "range_sum_rate",
+      "expr": "sum by (namespace) (rate(bench_http_requests_total[5m]))",
+      "type": "range",
+      "series": 100,
+      "points": 2300,
+      "sha256": "d73a595a36781f5a4ade0a72553085b3768b26c914d6ff1177b4303ea1409fed",
+      "elapsed_seconds": 0.547240582
+    },
+    {
+      "name": "range_subquery",
+      "expr": "max_over_time(bench_cpu_cores[30m:1m])",
+      "type": "range",
+      "series": 62500,
+      "points": 918750,
+      "sha256": "82623d225556c35fd96437bb6f1b321119885e3664ac965419b7d11c7328eda6",
+      "elapsed_seconds": 1.243794321
+    },
+    {
+      "name": "range_quantile",
+      "expr": "quantile_over_time(0.9, bench_cpu_cores[20m])",
+      "type": "range",
+      "series": 62500,
+      "points": 918750,
+      "sha256": "4f0d1e3a91e81b772426d16d1ab066a4b8c562b34e85e144e08661e54ebaa7ae",
+      "elapsed_seconds": 4.397472208
+    },
+    {
+      "name": "recording_rule_shape",
+      "expr": "sum(rate(bench_http_requests_total[5m]))",
+      "type": "range",
+      "series": 1,
+      "points": 46,
+      "sha256": "8476e35ab60f86d5070612b3b142560ef9e15b2e3753bdface4263bb54c11a16",
+      "elapsed_seconds": 0.566763607
+    },
+    {
+      "name": "alerting_shape",
+      "expr": "sum by (namespace) (rate(bench_http_requests_total[5m])) \u003e 1000",
+      "type": "range",
+      "series": 100,
+      "points": 3893,
+      "sha256": "e10ba8156cd29165d5598886e35830fb370b5c7bef9ee70203ad759cfa372147",
+      "elapsed_seconds": 0.569955365
+    },
+    {
+      "name": "group_left_many",
+      "expr": "bench_memory_bytes * on (namespace, pod) group_left() bench_cpu_cores",
+      "type": "instant",
+      "series": 62500,
+      "points": 0,
+      "sha256": "f1f392b0c78d006f958324fa11a05164e672a05ce58b4de7095c3327fe675c70",
+      "elapsed_seconds": 0.655382654
+    },
+    {
+      "name": "double_subquery",
+      "expr": "max_over_time(sum by (namespace) (rate(bench_http_requests_total[1m]))[10m:1m])",
+      "type": "range",
+      "series": 100,
+      "points": 2300,
+      "sha256": "55416fa4082f7e778bc3d81dd9060d77b7b9dbab3256eaf4c70ea92e7e64d021",
+      "elapsed_seconds": 0.410833736
+    },
+    {
+      "name": "sort_desc",
+      "expr": "sort_desc(sum by (namespace) (bench_memory_bytes))",
+      "type": "instant",
+      "series": 100,
+      "points": 0,
+      "sha256": "4f6b6c188f7f61ea204f836fc30ef867e72bac3467f86df4eedb82d156bb09c1",
+      "elapsed_seconds": 0.136103553
+    },
+    {
+      "name": "offset",
+      "expr": "bench_cpu_cores",
+      "type": "range",
+      "series": 62500,
+      "points": 1775000,
+      "sha256": "d5542cb672bf78d89da130a7f869f737bb2c330bb8a7493e0d0682e4a2fe5450",
+      "elapsed_seconds": 2.220680193
+    },
+    {
+      "name": "last_over_time_all",
+      "expr": "count(last_over_time({__name__=~\"bench_.*\"}[5m]))",
+      "type": "instant",
+      "series": 1,
+      "points": 0,
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "elapsed_seconds": 1.347332432
+    },
+    {
+      "name": "or_fallback",
+      "expr": "bench_missing_metric or bench_cpu_cores",
+      "type": "instant",
+      "series": 62500,
+      "points": 0,
+      "sha256": "a712401a23e5c84e1ff4a0169328963b65afab7f159b376442b4683acfa447d5",
+      "elapsed_seconds": 0.39332856
+    },
+    {
+      "name": "nested_aggregate",
+      "expr": "sum(topk(50, bench_cpu_cores))",
+      "type": "instant",
+      "series": 1,
+      "points": 0,
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "elapsed_seconds": 0.119018746
+    }
+  ]
+}

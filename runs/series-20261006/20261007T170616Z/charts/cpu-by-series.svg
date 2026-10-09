@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="448" viewBox="0 0 980 448" font-family="ui-sans-serif,system-ui,-apple-system,sans-serif">
+<rect width="100%" height="100%" fill="#ffffff" rx="10"/>
+<text x="28" y="34" font-size="17" font-weight="700" fill="#0f172a">CPU while ingesting</text>
+<text x="28" y="54" font-size="12" fill="#64748b">cgroup cpu cores, average over the step, lower is better</text>
+<rect x="817.8" y="24" width="11" height="11" rx="3" fill="#059669"/><text x="833.8" y="34" font-size="12" font-weight="600" fill="#334155">Prometheus 2.55.1</text>
+<rect x="679.6" y="24" width="11" height="11" rx="3" fill="#ea580c"/><text x="695.6" y="34" font-size="12" font-weight="600" fill="#334155">Prometheus 3.15.0</text>
+<rect x="567.8" y="24" width="11" height="11" rx="3" fill="#2563eb"/><text x="583.8" y="34" font-size="12" font-weight="600" fill="#334155">Prom++ 0.8.15</text>
+<rect x="370.7" y="84" width="292.7" height="320" fill="#f8fafc"/>
+<line x1="78" y1="404.0" x2="956.0" y2="404.0" stroke="#e2e8f0"/>
+<text x="68" y="408.0" font-size="11" fill="#64748b" text-anchor="end">0</text>
+<line x1="78" y1="297.3" x2="956.0" y2="297.3" stroke="#e2e8f0"/>
+<text x="68" y="301.3" font-size="11" fill="#64748b" text-anchor="end">0.1</text>
+<line x1="78" y1="190.7" x2="956.0" y2="190.7" stroke="#e2e8f0"/>
+<text x="68" y="194.7" font-size="11" fill="#64748b" text-anchor="end">0.2</text>
+<line x1="78" y1="84.0" x2="956.0" y2="84.0" stroke="#e2e8f0"/>
+<text x="68" y="88.0" font-size="11" fill="#64748b" text-anchor="end">0.3</text>
+<rect x="156.8" y="388.4" width="43.0" height="15.6" rx="3" fill="#2563eb"/>
+<text x="178.3" y="383.4" font-size="10" font-weight="600" fill="#334155" text-anchor="middle">0.01</text>
+<rect x="202.8" y="377.3" width="43.0" height="26.7" rx="3" fill="#ea580c"/>
+<text x="224.3" y="372.3" font-size="10" font-weight="600" fill="#334155" text-anchor="middle">0.03</text>
+<rect x="248.8" y="373.4" width="43.0" height="30.6" rx="3" fill="#059669"/>
+<text x="270.3" y="368.4" font-size="10" font-weight="600" fill="#334155" text-anchor="middle">0.03</text>
+<text x="224.3" y="430.0" font-size="13" font-weight="600" fill="#1e293b" text-anchor="middle">50k series</text>
+<rect x="449.5" y="374.7" width="43.0" height="29.3" rx="3" fill="#2563eb"/>
+<text x="471.0" y="369.7" font-size="10" font-weight="600" fill="#334155" text-anchor="middle">0.03</text>
+<rect x="495.5" y="326.0" width="43.0" height="78.0" rx="3" fill="#ea580c"/>
+<text x="517.0" y="321.0" font-size="10" font-weight="600" fill="#334155" text-anchor="middle">0.07</text>
+<rect x="541.5" y="303.8" width="43.0" height="100.2" rx="3" fill="#059669"/>
+<text x="563.0" y="298.8" font-size="10" font-weight="600" fill="#334155" text-anchor="middle">0.09</text>
+<text x="517.0" y="430.0" font-size="13" font-weight="600" fill="#1e293b" text-anchor="middle">200k series</text>
+<rect x="742.2" y="348.0" width="43.0" height="56.0" rx="3" fill="#2563eb"/>
+<text x="763.7" y="343.0" font-size="10" font-weight="600" fill="#334155" text-anchor="middle">0.05</text>
+<rect x="788.2" y="202.0" width="43.0" height="202.0" rx="3" fill="#ea580c"/>
+<text x="809.7" y="197.0" font-size="10" font-weight="600" fill="#334155" text-anchor="middle">0.19</text>
+<rect x="834.2" y="154.7" width="43.0" height="249.3" rx="3" fill="#059669"/>
+<text x="855.7" y="149.7" font-size="10" font-weight="600" fill="#334155" text-anchor="middle">0.23</text>
+<text x="809.7" y="430.0" font-size="13" font-weight="600" fill="#1e293b" text-anchor="middle">500k series</text>
+</svg>

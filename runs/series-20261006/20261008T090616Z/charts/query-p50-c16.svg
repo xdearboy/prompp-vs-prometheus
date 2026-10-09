@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="952" viewBox="0 0 980 952" font-family="ui-sans-serif,system-ui,-apple-system,sans-serif">
+<rect width="100%" height="100%" fill="#ffffff" rx="10"/>
+<text x="28" y="34" font-size="17" font-weight="700" fill="#0f172a">Median query latency, concurrency 16</text>
+<text x="28" y="54" font-size="12" fill="#64748b">the 12 slowest queries, lower is better</text>
+<rect x="817.8" y="24" width="11" height="11" rx="3" fill="#059669"/><text x="833.8" y="34" font-size="12" font-weight="600" fill="#334155">Prometheus 2.55.1</text>
+<rect x="679.6" y="24" width="11" height="11" rx="3" fill="#ea580c"/><text x="695.6" y="34" font-size="12" font-weight="600" fill="#334155">Prometheus 3.15.0</text>
+<rect x="567.8" y="24" width="11" height="11" rx="3" fill="#2563eb"/><text x="583.8" y="34" font-size="12" font-weight="600" fill="#334155">Prom++ 0.8.15</text>
+<rect x="168.0" y="84.0" width="662.0" height="69.0" fill="#f8fafc"/>
+<rect x="168.0" y="222.0" width="662.0" height="69.0" fill="#f8fafc"/>
+<rect x="168.0" y="360.0" width="662.0" height="69.0" fill="#f8fafc"/>
+<rect x="168.0" y="498.0" width="662.0" height="69.0" fill="#f8fafc"/>
+<rect x="168.0" y="636.0" width="662.0" height="69.0" fill="#f8fafc"/>
+<rect x="168.0" y="774.0" width="662.0" height="69.0" fill="#f8fafc"/>
+<line x1="168.0" y1="84" x2="168.0" y2="912.0" stroke="#e2e8f0"/><text x="168.0" y="932.0" font-size="11" fill="#64748b" text-anchor="middle">0</text>
+<line x1="388.7" y1="84" x2="388.7" y2="912.0" stroke="#e2e8f0"/><text x="388.7" y="932.0" font-size="11" fill="#64748b" text-anchor="middle">20 s</text>
+<line x1="609.3" y1="84" x2="609.3" y2="912.0" stroke="#e2e8f0"/><text x="609.3" y="932.0" font-size="11" fill="#64748b" text-anchor="middle">40 s</text>
+<line x1="830.0" y1="84" x2="830.0" y2="912.0" stroke="#e2e8f0"/><text x="830.0" y="932.0" font-size="11" fill="#64748b" text-anchor="middle">60 s</text>
+<text x="156.0" y="122.5" font-size="12.5" font-weight="600" fill="#1e293b" text-anchor="end">range_quantile</text>
+<rect x="168.0" y="93.0" width="491.2" height="14" rx="3" fill="#2563eb"/>
+<text x="665.2" y="104.0" font-size="11" font-weight="600" fill="#334155" stroke="#ffffff" stroke-width="3" paint-order="stroke">44.5 s</text>
+<rect x="168.0" y="110.0" width="606.7" height="14" rx="3" fill="#ea580c"/>
+<text x="780.7" y="121.0" font-size="11" font-weight="600" fill="#334155" stroke="#ffffff" stroke-width="3" paint-order="stroke">55.0 s</text>
+<rect x="168.0" y="127.0" width="600.0" height="14" rx="3" fill="#059669"/>
+<text x="774.0" y="138.0" font-size="11" font-weight="600" fill="#334155" stroke="#ffffff" stroke-width="3" paint-order="stroke">54.4 s</text>
+<text x="156.0" y="191.5" font-size="12.5" font-weight="600" fill="#1e293b" text-anchor="end">range_gauge</text>
+<rect x="168.0" y="162.0" width="152.1" height="14" rx="3" fill="#2563eb"/>
+<text x="326.1" y="173.0" font-size="11" font-weight="600" fill="#334155" stroke="#ffffff" stroke-width="3" paint-order="stroke">13.8 s</text>
+<rect x="168.0" y="179.0" width="187.7" height="14" rx="3" fill="#ea580c"/>
+<text x="361.7" y="190.0" font-size="11" font-weight="600" fill="#334155" stroke="#ffffff" stroke-width="3" paint-order="stroke">17.0 s</text>
+<rect x="168.0" y="196.0" width="207.3" height="14" rx="3" fill="#059669"/>
+<text x="381.3" y="207.0" font-size="11" font-weight="600" fill="#334155" stroke="#ffffff" stroke-width="3" paint-order="stroke">18.8 s</text>
+<text x="156.0" y="260.5" font-size="12.5" font-weight="600" fill="#1e293b" text-anchor="end">last_over_time_all</text>
+<rect x="168.0" y="231.0" width="137.4" height="14" rx="3" fill="#2563eb"/>
+<text x="311.4" y="242.0" font-size="11" font-weight="600" fill="#334155" stroke="#ffffff" stroke-width="3" paint-order="stroke">12.5 s</text>
+<rect x="168.0" y="248.0" width="187.5" height="14" rx="3" fill="#ea580c"/>
+<text x="361.5" y="259.0" font-size="11" font-weight="600" fill="#334155" stroke="#ffffff" stroke-width="3" paint-order="stroke">17.0 s</text>
+<rect x="168.0" y="265.0" width="190.2" height="14" rx="3" fill="#059669"/>
+<text x="364.2" y="276.0" font-size="11" font-weight="600" fill="#334155" stroke="#ffffff" stroke-width="3" paint-order="stroke">17.2 s</text>
+<text x="156.0" y="329.5" font-size="12.5" font-weight="600" fill="#1e293b" text-anchor="end">offset</text>
+<rect x="168.0" y="300.0" width="152.6" height="14" rx="3" fill="#2563eb"/>
+<text x="326.6" y="311.0" font-size="11" font-weight="600" fill="#334155" stroke="#ffffff" stroke-width="3" paint-order="stroke">13.8 s</text>
+<rect x="168.0" y="317.0" width="177.7" height="14" rx="3" fill="#ea580c"/>
+<text x="351.7" y="328.0" font-size="11" font-weight="600" fill="#334155" stroke="#ffffff" stroke-width="3" paint-order="stroke">16.1 s</text>
+<rect x="168.0" y="334.0" width="189.4" height="14" rx="3" fill="#059669"/>
+<text x="363.4" y="345.0" font-size="11" font-weight="600" fill="#334155" stroke="#ffffff" stroke-width="3" paint-order="stroke">17.2 s</text>
+<text x="156.0" y="398.5" font-size="12.5" font-weight="600" fill="#1e293b" text-anchor="end">range_subquery</text>
+<rect x="168.0" y="369.0" width="87.8" height="14" rx="3" fill="#2563eb"/>
+<text x="261.8" y="380.0" font-size="11" font-weight="600" fill="#334155" stroke="#ffffff" stroke-width="3" paint-order="stroke">8.0 s</text>
+<rect x="168.0" y="386.0" width="122.4" height="14" rx="3" fill="#ea580c"/>
+<text x="296.4" y="397.0" font-size="11" font-weight="600" fill="#334155" stroke="#ffffff" stroke-width="3" paint-order="stroke">11.1 s</text>
+<rect x="168.0" y="403.0" width="96.5" height="14" rx="3" fill="#059669"/>
+<text x="270.5" y="414.0" font-size="11" font-weight="600" fill="#334155" stroke="#ffffff" stroke-width="3" paint-order="stroke">8.7 s</text>
+<text x="156.0" y="467.5" font-size="12.5" font-weight="600" fill="#1e293b" text-anchor="end">regex_name</text>
+<rect x="168.0" y="438.0" width="73.7" height="14" rx="3" fill="#2563eb"/>
+<text x="247.7" y="449.0" font-size="11" font-weight="600" fill="#334155" stroke="#ffffff" stroke-width="3" paint-order="stroke">6.7 s</text>
+<rect x="168.0" y="455.0" width="83.7" height="14" rx="3" fill="#ea580c"/>
+<text x="257.7" y="466.0" font-size="11" font-weight="600" fill="#334155" stroke="#ffffff" stroke-width="3" paint-order="stroke">7.6 s</text>
+<rect x="168.0" y="472.0" width="116.7" height="14" rx="3" fill="#059669"/>
+<text x="290.7" y="483.0" font-size="11" font-weight="600" fill="#334155" stroke="#ffffff" stroke-width="3" paint-order="stroke">10.6 s</text>
+<text x="156.0" y="536.5" font-size="12.5" font-weight="600" fill="#1e293b" text-anchor="end">quantile_over_time</text>
+<rect x="168.0" y="507.0" width="64.6" height="14" rx="3" fill="#2563eb"/>
+<text x="238.6" y="518.0" font-size="11" font-weight="600" fill="#334155" stroke="#ffffff" stroke-width="3" paint-order="stroke">5.9 s</text>
+<rect x="168.0" y="524.0" width="78.4" height="14" rx="3" fill="#ea580c"/>
+<text x="252.4" y="535.0" font-size="11" font-weight="600" fill="#334155" stroke="#ffffff" stroke-width="3" paint-order="stroke">7.1 s</text>
+<rect x="168.0" y="541.0" width="81.0" height="14" rx="3" fill="#059669"/>
+<text x="255.0" y="552.0" font-size="11" font-weight="600" fill="#334155" stroke="#ffffff" stroke-width="3" paint-order="stroke">7.3 s</text>
+<text x="156.0" y="605.5" font-size="12.5" font-weight="600" fill="#1e293b" text-anchor="end">rate_histogram</text>
+<rect x="168.0" y="576.0" width="61.8" height="14" rx="3" fill="#2563eb"/>
+<text x="235.8" y="587.0" font-size="11" font-weight="600" fill="#334155" stroke="#ffffff" stroke-width="3" paint-order="stroke">5.6 s</text>
+<rect x="168.0" y="593.0" width="68.6" height="14" rx="3" fill="#ea580c"/>
+<text x="242.6" y="604.0" font-size="11" font-weight="600" fill="#334155" stroke="#ffffff" stroke-width="3" paint-order="stroke">6.2 s</text>
+<rect x="168.0" y="610.0" width="79.7" height="14" rx="3" fill="#059669"/>
+<text x="253.7" y="621.0" font-size="11" font-weight="600" fill="#334155" stroke="#ffffff" stroke-width="3" paint-order="stroke">7.2 s</text>
+<text x="156.0" y="674.5" font-size="12.5" font-weight="600" fill="#1e293b" text-anchor="end">range_sum_rate</text>
+<rect x="168.0" y="645.0" width="52.2" height="14" rx="3" fill="#2563eb"/>
+<text x="226.2" y="656.0" font-size="11" font-weight="600" fill="#334155" stroke="#ffffff" stroke-width="3" paint-order="stroke">4.7 s</text>
+<rect x="168.0" y="662.0" width="75.0" height="14" rx="3" fill="#ea580c"/>
+<text x="249.0" y="673.0" font-size="11" font-weight="600" fill="#334155" stroke="#ffffff" stroke-width="3" paint-order="stroke">6.8 s</text>
+<rect x="168.0" y="679.0" width="71.8" height="14" rx="3" fill="#059669"/>
+<text x="245.8" y="690.0" font-size="11" font-weight="600" fill="#334155" stroke="#ffffff" stroke-width="3" paint-order="stroke">6.5 s</text>
+<text x="156.0" y="743.5" font-size="12.5" font-weight="600" fill="#1e293b" text-anchor="end">alerting_shape</text>
+<rect x="168.0" y="714.0" width="57.2" height="14" rx="3" fill="#2563eb"/>
+<text x="231.2" y="725.0" font-size="11" font-weight="600" fill="#334155" stroke="#ffffff" stroke-width="3" paint-order="stroke">5.2 s</text>
+<rect x="168.0" y="731.0" width="74.9" height="14" rx="3" fill="#ea580c"/>
+<text x="248.9" y="742.0" font-size="11" font-weight="600" fill="#334155" stroke="#ffffff" stroke-width="3" paint-order="stroke">6.8 s</text>
+<rect x="168.0" y="748.0" width="70.1" height="14" rx="3" fill="#059669"/>
+<text x="244.1" y="759.0" font-size="11" font-weight="600" fill="#334155" stroke="#ffffff" stroke-width="3" paint-order="stroke">6.4 s</text>
+<text x="156.0" y="812.5" font-size="12.5" font-weight="600" fill="#1e293b" text-anchor="end">group_left_many</text>
+<rect x="168.0" y="783.0" width="58.5" height="14" rx="3" fill="#2563eb"/>
+<text x="232.5" y="794.0" font-size="11" font-weight="600" fill="#334155" stroke="#ffffff" stroke-width="3" paint-order="stroke">5.3 s</text>
+<rect x="168.0" y="800.0" width="65.1" height="14" rx="3" fill="#ea580c"/>
+<text x="239.1" y="811.0" font-size="11" font-weight="600" fill="#334155" stroke="#ffffff" stroke-width="3" paint-order="stroke">5.9 s</text>
+<rect x="168.0" y="817.0" width="70.4" height="14" rx="3" fill="#059669"/>
+<text x="244.4" y="828.0" font-size="11" font-weight="600" fill="#334155" stroke="#ffffff" stroke-width="3" paint-order="stroke">6.4 s</text>
+<text x="156.0" y="881.5" font-size="12.5" font-weight="600" fill="#1e293b" text-anchor="end">recording_rule_shape</text>
+<rect x="168.0" y="852.0" width="55.8" height="14" rx="3" fill="#2563eb"/>
+<text x="229.8" y="863.0" font-size="11" font-weight="600" fill="#334155" stroke="#ffffff" stroke-width="3" paint-order="stroke">5.1 s</text>
+<rect x="168.0" y="869.0" width="69.8" height="14" rx="3" fill="#ea580c"/>
+<text x="243.8" y="880.0" font-size="11" font-weight="600" fill="#334155" stroke="#ffffff" stroke-width="3" paint-order="stroke">6.3 s</text>
+<rect x="168.0" y="886.0" width="64.5" height="14" rx="3" fill="#059669"/>
+<text x="238.5" y="897.0" font-size="11" font-weight="600" fill="#334155" stroke="#ffffff" stroke-width="3" paint-order="stroke">5.8 s</text>
+</svg>

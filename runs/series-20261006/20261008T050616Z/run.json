@@ -1,0 +1,79 @@
+{
+  "run_id": "20261008T050616Z",
+  "started_at": "2026-10-08T05:06:16.793454632Z",
+  "finished_at": "0001-01-01T00:00:00Z",
+  "harness_version": "harness/b3000ef-7f49340",
+  "node": {
+    "name": "bench-node",
+    "kernel_version": "6.8.0-142-generic",
+    "os_image": "Ubuntu 24.04.4 LTS",
+    "arch": "amd64",
+    "cpu_model": "AMD EPYC 7713 64-Core Processor",
+    "cpu_cores": 8,
+    "mem_total_bytes": 16768634880,
+    "fs_available_bytes": 162721992704,
+    "fs_capacity_bytes": 190139863040
+  },
+  "engines": [
+    {
+      "name": "prompp-0815",
+      "image": "mirror.gcr.io/prompp/prompp:0.8.15",
+      "version": "0.8.15",
+      "args": [
+        "--config.file=...",
+        "--storage.tsdb.path=...",
+        "--web.enable-remote-write-receiver",
+        "--web.enable-lifecycle"
+      ],
+      "cpu_milli_limit": 2000,
+      "memory_limit_bytes": 6442450944,
+      "env": [
+        "GOMEMLIMIT=5529MiB",
+        "GOMAXPROCS=2"
+      ],
+      "notes": "C++ head and WAL"
+    },
+    {
+      "name": "prom-3150",
+      "image": "quay.io/prometheus/prometheus:v3.15.0",
+      "version": "3.15.0",
+      "args": [
+        "--config.file=...",
+        "--storage.tsdb.path=...",
+        "--web.enable-remote-write-receiver",
+        "--web.enable-lifecycle"
+      ],
+      "cpu_milli_limit": 2000,
+      "memory_limit_bytes": 6442450944,
+      "env": [
+        "GOMEMLIMIT=5529MiB",
+        "GOMAXPROCS=2"
+      ],
+      "notes": "upstream latest"
+    },
+    {
+      "name": "prom-2551",
+      "image": "quay.io/prometheus/prometheus:v2.55.1",
+      "version": "2.55.1",
+      "args": [
+        "--config.file=...",
+        "--storage.tsdb.path=...",
+        "--web.enable-remote-write-receiver",
+        "--web.enable-lifecycle"
+      ],
+      "cpu_milli_limit": 2000,
+      "memory_limit_bytes": 6442450944,
+      "env": [
+        "GOMEMLIMIT=5529MiB",
+        "GOMAXPROCS=2"
+      ],
+      "notes": "closed range selectors, the semantics before 3.0"
+    }
+  ],
+  "extra": {
+    "container_runtime": "containerd://2.3.4-k3s1.36",
+    "instance_type": "k3s",
+    "kubelet_version": "v1.36.4+k3s1",
+    "operating_system": "linux"
+  }
+}

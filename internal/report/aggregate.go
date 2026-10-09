@@ -26,10 +26,10 @@ func (m *metric) add(engine string, v float64) {
 
 func Aggregate(root string, runIDs []string) ([]byte, error) {
 	var (
-		rss  = newMetric("RSS at the last step", func(v float64) string { return Bytes(uint64(v)) })
-		ws   = newMetric("Working set at the last step", func(v float64) string { return Bytes(uint64(v)) })
+		rss  = newMetric("RSS at the last step", preciseBytes)
+		ws   = newMetric("Working set at the last step", preciseBytes)
 		cpu  = newMetric("Ingest cpu cores, average", func(v float64) string { return fmt.Sprintf("%.2f", v) })
-		disk = newMetric("Data directory", func(v float64) string { return Bytes(uint64(v)) })
+		disk = newMetric("Data directory", preciseBytes)
 		lat  = map[int]*metric{}
 	)
 	for _, id := range runIDs {
@@ -97,4 +97,11 @@ func median(sorted []float64) float64 {
 		return sorted[n/2]
 	}
 	return (sorted[n/2-1] + sorted[n/2]) / 2
+}
+
+func preciseBytes(v float64) string {
+	if v >= 1<<30 {
+		return fmt.Sprintf("%.2f GiB", v/(1<<30))
+	}
+	return Bytes(uint64(v))
 }

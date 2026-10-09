@@ -13,27 +13,32 @@ Full report with every table: [runs/20261006T151708Z/REPORT.md](runs/20261006T15
 
 ![compared with Prometheus 3.15.0](runs/20261006T151708Z/charts/summary.svg)
 
+Median of 12 full runs, one every four hours for two days, 500k series at the end of
+the ramp. The spread between the fastest and the slowest run stays under 8 percent
+for everything except the working set of Prom++ (12 percent), see
+[runs/series-20261006/AGGREGATE.md](runs/series-20261006/AGGREGATE.md).
+
 | at 500k series | Prom++ 0.8.15 | Prometheus 3.15.0 | Prometheus 2.55.1 |
 |---|---|---|---|
-| resident memory | **248 MiB** | 1.1 GiB | 1.1 GiB |
-| per series | **478 B** | 2.8 KiB | 2.8 KiB |
-| cgroup working set | **251 MiB** | 1.3 GiB | 1.3 GiB |
+| resident memory | **255 MiB** | 1.11 GiB | 1.09 GiB |
+| cgroup working set | **176 MiB** | 1.06 GiB | 1.03 GiB |
 | cpu while ingesting | **0.05 cores** | 0.19 | 0.23 |
-| data directory | 281 MiB | 301 MiB | 300 MiB |
+| data directory | 281 MiB | 303 MiB | 303 MiB |
 
 Query latency, geometric mean of the median over all queries:
 
 | concurrency | Prom++ 0.8.15 | Prometheus 3.15.0 | Prometheus 2.55.1 |
 |---|---|---|---|
-| 1 | **294 ms** | 347 ms | 343 ms |
-| 4 | **684 ms** | 827 ms | 835 ms |
-| 16 | **2.55 s** | 3.31 s | 3.41 s |
+| 1 | **298 ms** | 348 ms | 345 ms |
+| 4 | **682 ms** | 828 ms | 839 ms |
+| 16 | **2.53 s** | 3.35 s | 3.46 s |
 
 Memory is where the engines differ, queries are 15 to 25 percent faster and disk is
 a wash. 33 of 38 queries return byte identical results on all three engines. The five
 that differ are rate and `_over_time` range queries: Prom++ 0.8.15 evaluates range
 selectors left-open like Prometheus 3.x, 2.55.1 includes the sample on the window
-start.
+start. The charts below are from the first run, every run is in
+[runs/series-20261006](runs/series-20261006).
 
 ![latency under concurrency](runs/20261006T151708Z/charts/latency-scaling.svg)
 
