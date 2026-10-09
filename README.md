@@ -1,6 +1,6 @@
 **English** · [Русский](README.ru.md)
 
-# Prom++ vs Prometheus
+<img src="assets/banner.svg" alt="Prom++ vs Prometheus" width="100%">
 
 [![ci](https://github.com/xdearboy/prompp-vs-prometheus/actions/workflows/ci.yml/badge.svg)](https://github.com/xdearboy/prompp-vs-prometheus/actions/workflows/ci.yml)
 

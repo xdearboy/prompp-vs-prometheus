@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="320" viewBox="0 0 1280 320" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace">
+  <rect width="1280" height="320" fill="#0a0a0d"/>
+  <text x="80" y="76" font-size="18" fill="#7c5cff">$ benchmark --engines prompp-0815,prom-3150,prom-2551</text>
+  <text x="80" y="156" font-size="62" font-weight="700" fill="#f5f5f7" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif">Prom++ vs Prometheus</text>
+  <text x="80" y="200" font-size="20" fill="#8b8b96">one node, same limits, same data, median of 12 runs</text>
+  <line x1="80" y1="236" x2="1200" y2="236" stroke="#23232b"/>
+  <g font-size="19" fill="#c9c9d1">
+    <text x="80" y="276"><tspan fill="#7c5cff" font-weight="700">255 MiB</tspan> / 1.1 GiB memory</text>
+    <text x="480" y="276"><tspan fill="#7c5cff" font-weight="700">0.05</tspan> / 0.19 cores</text>
+    <text x="820" y="276"><tspan fill="#7c5cff" font-weight="700">2.53 s</tspan> / 3.35 s per query</text>
+  </g>
+</svg>
