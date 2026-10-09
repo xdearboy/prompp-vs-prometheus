@@ -10,7 +10,8 @@ permissions:
 
 jobs:
   verify:
-    runs-on: ubuntu-latest
+    runs-on: prompp-runners
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
     steps:
       - uses: actions/checkout@v4
         with:
@@ -20,6 +21,9 @@ jobs:
         with:
           go-version-file: go.mod
           check-latest: true
+
+      - name: C compiler for the race detector
+        run: command -v gcc >/dev/null || (sudo apt-get update -qq && sudo apt-get install -y -qq gcc)
 
       - name: gofmt
         run: |
@@ -44,7 +48,8 @@ jobs:
           (cd tools && go vet ./... && go test -race ./...)
 
   manifests:
-    runs-on: ubuntu-latest
+    runs-on: prompp-runners
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
     steps:
       - uses: actions/checkout@v4
 
