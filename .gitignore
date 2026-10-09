@@ -8,3 +8,4 @@ overlays/local/
 *.log
 /HANDOFF.md
 /HABR_ARTICLE.md
+/.claude/

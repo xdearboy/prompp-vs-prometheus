@@ -74,9 +74,12 @@ tools/          submodule, github.com/xdearboy/prom-loadgen: loadgen, querybench
 cmd/meta        run metadata
 cmd/report      markdown and svg report of one run
 cmd/aggregate   median and spread over many runs
-internal/engines, internal/report
-deploy          kustomize manifests for the three engines
-scripts         harness, run, series, teardown, preflight, node overlay
+internal/       engine registry, report and chart generator
+deploy/         kustomize manifests for the three engines, runner.yaml for the in-cluster runner
+scripts/        harness, run, series, runner, teardown, preflight, node overlay
+runs/           published results
+  20261006T151708Z/   first full run, with the raw resource samples
+  series-20261006/    twelve repeated runs and their aggregate, without raw samples
 ```
 
 Clone with `git clone --recurse-submodules`, or run `git submodule update --init`.
@@ -112,14 +115,20 @@ placeholder ever reaches a rendered manifest.
 
 One run says little about variance. `scripts/series.sh` starts a run every
 `PERIOD_HOURS` (default 4) for `RUNS` times (default 12, two days) and writes the
-median, minimum and maximum over all finished runs to `results/AGGREGATE.md`:
+median, minimum and maximum over all finished runs to `results/AGGREGATE.md`.
+A run takes about 2.5 hours, so the period must stay above that.
+
+`scripts/runner.sh` starts the whole series inside the cluster, in a small pod that
+holds the scripts and talks to the API server through its own service account, so
+the machine that launched it can be switched off:
 
 ```sh
 export BENCH_NODE=<the node>
-nohup scripts/series.sh > series.log 2>&1 &
+scripts/harness.sh
+scripts/runner.sh
+kubectl -n prompp-bench exec bench-runner -- tail /work/series.log
+kubectl cp prompp-bench/bench-runner:/work/results ./results
 ```
-
-A run takes about 2.5 hours, so the period must stay above that.
 
 ### Knobs
 

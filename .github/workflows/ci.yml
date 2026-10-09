@@ -38,7 +38,7 @@ jobs:
 
       - name: build linux binaries
         run: |
-          for cmd in meta report; do
+          for cmd in meta report aggregate; do
             CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -o "bin/$cmd" "./cmd/$cmd"
           done
           (cd tools && go vet ./... && go test -race ./...)
