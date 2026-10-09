@@ -9,9 +9,9 @@ limits (2 cpu, 6 GiB), the same Go runtime settings and the same synthetic data.
 ## Result
 
 500 000 active series, 27.4 million samples per engine, 38 PromQL queries.
-Full report with every table: [runs/20261006T151708Z/REPORT.md](runs/20261006T151708Z/REPORT.md).
+Full report with every table: [runs/series-20261006/20261006T210616Z/REPORT.md](runs/series-20261006/20261006T210616Z/REPORT.md).
 
-![compared with Prometheus 3.15.0](runs/20261006T151708Z/charts/summary.svg)
+![compared with Prometheus 3.15.0](runs/series-20261006/20261006T210616Z/charts/summary.svg)
 
 Median of 12 full runs, one every four hours for two days, 500k series at the end of
 the ramp. The spread between the fastest and the slowest run stays under 8 percent
@@ -37,14 +37,14 @@ Memory is where the engines differ, queries are 15 to 25 percent faster and disk
 a wash. 33 of 38 queries return byte identical results on all three engines. The five
 that differ are rate and `_over_time` range queries: Prom++ 0.8.15 evaluates range
 selectors left-open like Prometheus 3.x, 2.55.1 includes the sample on the window
-start. The charts below are from the first run, every run is in
+start. The charts are from the first run of the series, every run is in
 [runs/series-20261006](runs/series-20261006).
 
-![latency under concurrency](runs/20261006T151708Z/charts/latency-scaling.svg)
+![latency under concurrency](runs/series-20261006/20261006T210616Z/charts/latency-scaling.svg)
 
-![resident memory](runs/20261006T151708Z/charts/rss-by-series.svg)
+![resident memory](runs/series-20261006/20261006T210616Z/charts/rss-by-series.svg)
 
-![resident memory during ingest](runs/20261006T151708Z/charts/rss-timeline.svg)
+![resident memory during ingest](runs/series-20261006/20261006T210616Z/charts/rss-timeline.svg)
 
 Read [METHODOLOGY.md](METHODOLOGY.md) before quoting these numbers: one node, short
 runs and synthetic data are real limits.
@@ -78,8 +78,8 @@ internal/       engine registry, report and chart generator
 deploy/         kustomize manifests for the three engines, runner.yaml for the in-cluster runner
 scripts/        harness, run, series, runner, teardown, preflight, node overlay
 runs/           published results
-  20261006T151708Z/   first full run, with the raw resource samples
-  series-20261006/    twelve repeated runs and their aggregate, without raw samples
+  series-20261006/    twelve repeated runs and their aggregate, the first run (20261006T210616Z)
+                      keeps the raw resource samples, the others only the summaries
 ```
 
 Clone with `git clone --recurse-submodules`, or run `git submodule update --init`.
