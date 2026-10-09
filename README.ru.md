@@ -50,7 +50,7 @@ Prometheus 3.x, а 2.55.1 учитывает точку, лежащую ровн
 
 | имя | образ | заметки |
 |---|---|---|
-| `prompp-0815` | `mirror.gcr.io/prompp/prompp:0.8.15` | головной блок и WAL на C++, диапазоны как в 3.x |
+| `prompp-0815` | `mirror.gcr.io/prompp/prompp:0.8.15` | head и WAL на C++, диапазоны как в 3.x |
 | `prom-3150` | `quay.io/prometheus/prometheus:v3.15.0` | свежий оригинальный Prometheus |
 | `prom-2551` | `quay.io/prometheus/prometheus:v2.55.1` | интервал закрыт с обеих сторон |
 
@@ -149,7 +149,7 @@ kubectl cp prompp-bench/bench-runner:/work/results ./results
 ```text
 results/<run-id>/
   run.json                                   узел, движки, версия нагрузочного кода
-  <engine>/ingest.json                       скорость записи, время запросов, головной блок
+  <engine>/ingest.json                       скорость записи, время запросов, статистика head
   <engine>/samples.ingest.jsonl              замеры ресурсов во время записи
   <engine>/samples.query-<suite>-c<n>.jsonl  замеры ресурсов на каждом запуске запросов
   <engine>/query-<suite>-c<n>.json
